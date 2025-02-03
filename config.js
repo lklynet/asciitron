@@ -1,3 +1,3 @@
 window.ENV = {
-    API_KEY: 'API_KEY' // Using the API key from environment variables
+    API_KEY: window.__ENV?.API_KEY || '' // Access API key from Cloudflare Pages environment
 };

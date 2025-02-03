@@ -436,7 +436,7 @@
         function updateLeaderboardDisplay(scores) {
             const scoresDiv = document.getElementById('scores');
             scoresDiv.innerHTML = scores
-                .map((score, index) => `${index + 1}. ${score.name}: ${score.score}`)
+                .map((score, index) => `${index + 1}. ${score.name} !${score.tripcode}: ${score.score}`)
                 .join('<br>');
         }
     </script>

@@ -6,6 +6,27 @@ const corsHeaders = {
   'Access-Control-Max-Age': '86400'
 };
 
+const adjectives = [
+  'cosmic', 'dancing', 'flying', 'magical', 'mystic',
+  'rainbow', 'singing', 'sparkling', 'whispering', 'glowing',
+  'bouncing', 'floating', 'laughing', 'shining', 'dreaming',
+  'jumping', 'running', 'smiling', 'twinkling', 'wandering'
+];
+
+const nouns = [
+  'unicorn', 'dragon', 'phoenix', 'mermaid', 'wizard',
+  'butterfly', 'dolphin', 'elephant', 'penguin', 'tiger',
+  'banana', 'rainbow', 'star', 'cloud', 'moon',
+  'crystal', 'flower', 'river', 'mountain', 'forest'
+];
+
+function generateWordPair(hash) {
+  // Use first 4 bytes for adjective and next 4 bytes for noun
+  const adjIndex = parseInt(hash.slice(0, 8), 16) % adjectives.length;
+  const nounIndex = parseInt(hash.slice(8, 16), 16) % nouns.length;
+  return `${adjectives[adjIndex]}_${nouns[nounIndex]}`;
+}
+
 class RateLimiter {
   constructor() {
     this.requests = new Map();
@@ -67,10 +88,12 @@ async function handleRequest(request, env) {
       }
 
       const scores = await env.SCORES.get('highscores', 'json') || [];
+      const username = name.split('#')[0];
+      const tripcode = generateWordPair(name.split('#')[1]); // Generate word pair from hash
       scores.push({
         score,
-        name: name.split('#')[0], // Store only the display name
-        hash: name.split('#')[1], // Store the password hash
+        name: username,
+        tripcode,
         timestamp: Date.now()
       });
 

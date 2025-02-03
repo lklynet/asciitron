@@ -427,11 +427,7 @@
                     }
                 });
                 const scores = await response.json();
-                if (Array.isArray(scores)) {
-                    updateLeaderboardDisplay(scores);
-                } else {
-                    console.error('Invalid scores format:', scores);
-                }
+                updateLeaderboardDisplay(scores);
             } catch (error) {
                 console.error('Error fetching leaderboard:', error);
             }

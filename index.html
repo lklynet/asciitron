@@ -427,7 +427,11 @@
                     }
                 });
                 const scores = await response.json();
-                updateLeaderboardDisplay(scores);
+                if (Array.isArray(scores)) {
+                    updateLeaderboardDisplay(scores);
+                } else {
+                    console.error('Invalid scores format:', scores);
+                }
             } catch (error) {
                 console.error('Error fetching leaderboard:', error);
             }
@@ -452,12 +456,16 @@
             }
 
             const scoresDiv = document.getElementById('scores');
-            scoresDiv.innerHTML = scores
-                .map((score, index) => {
-                    const color = getColorFromTripcode(score.tripcode);
-                    return `${index + 1}. <span style="color: ${color}">${score.name}</span> !${score.tripcode}: ${score.score}`;
-                })
-                .join('<br>');
+            if (scores && scores.length > 0) {
+                scoresDiv.innerHTML = scores
+                    .map((score, index) => {
+                        const color = getColorFromTripcode(score.tripcode);
+                        return `${index + 1}. <span style="color: ${color}">${score.name}</span> !${score.tripcode}: ${score.score}`;
+                    })
+                    .join('<br>');
+            } else {
+                scoresDiv.innerHTML = 'No scores yet';
+            }
         }
     </script>
 </body>

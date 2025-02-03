@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCIItron</title>
+    <style>
+         :root {
+            --ctp-base: #1e1e2e;
+            --ctp-bg: #1e1e2e;
+            --ctp-text: #cdd6f4;
+            --ctp-player: #89b4fa;
+            --ctp-enemy1: #f38ba8;
+            --ctp-enemy2: #fab387;
+            --ctp-enemy3: #a6e3a1;
+            --ctp-bullet: #f5e0dc;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--ctp-bg);
+            color: var(--ctp-text);
+            font-family: 'Courier New', monospace;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        #start-screen {
+            text-align: center;
+            font-size: 24px;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+        #game-screen {
+            display: none;
+            white-space: pre;
+            font-size: 16px;
+            line-height: 1;
+            background-color: #2a2a3e;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        #leaderboard {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border: 1px solid #333;
+        }
+        .blink {
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div id="start-screen">
+        <span class="blink">PRESS SPACE TO START</span>
+    </div>
+    <div id="game-screen"></div>
+    <div id="leaderboard">
+        <h3>Top Scores</h3>
+        <div id="scores"></div>
+    </div>
+
+    <script>
+        let gameState = 'start';
+        let gameLoop;
+        let score = 0;
+        let wave = 1;
+        let player = { 
+            x: 40,
+            y: 12,
+            char: '@',
+            dx: 0,
+            dy: 0,
+            shootDx: 0,
+            shootDy: -1
+        };
+        let bullets = [];
+        let enemies = [];
+        let gameWidth = 80;
+        let gameHeight = 24;
+        let bulletSpeed = 0.8;
+        let enemySpeed = 0.1;
+        let spawnRate = 0.01;
+
+        function startGame() {
+            gameState = 'playing';
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            document.getElementById('leaderboard').style.display = 'block';
+            initGame();
+            gameLoop = setInterval(updateGame, 1000 / 30);
+        }
+
+        function initGame() {
+            score = 0;
+            wave = 1;
+            player.x = 40;
+            player.y = 12;
+            player.dx = 0;
+            player.dy = 0;
+            player.shootDx = 0;
+            player.shootDy = -1;
+            bullets = [];
+            enemies = [];
+            spawnRate = 0.02;
+            enemySpeed = 0.2;
+        }
+
+        function spawnEnemy() {
+            const side = Math.floor(Math.random() * 4);
+            let x, y;
+            
+            switch(side) {
+                case 0: // top
+                    x = Math.random() * gameWidth;
+                    y = 0;
+                    break;
+                case 1: // right
+                    x = gameWidth - 1;
+                    y = Math.random() * gameHeight;
+                    break;
+                case 2: // bottom
+                    x = Math.random() * gameWidth;
+                    y = gameHeight - 1;
+                    break;
+                case 3: // left
+                    x = 0;
+                    y = Math.random() * gameHeight;
+                    break;
+            }
+            
+            enemies.push({
+                x: x,
+                y: y,
+                char: Math.random() < 0.33 ? '&' : Math.random() < 0.5 ? '%' : '#',
+                type: Math.floor(Math.random() * 3)
+            });
+        }
+
+        function updateGame() {
+            // Update player movement and shooting
+            player.x = Math.max(0, Math.min(gameWidth - 1, player.x + player.dx));
+            player.y = Math.max(0, Math.min(gameHeight - 1, player.y + player.dy));
+
+            // Update bullets
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                bullets[i].x += bullets[i].dx * bulletSpeed;
+                bullets[i].y += bullets[i].dy * bulletSpeed;
+                
+                if (bullets[i].x < 0 || bullets[i].x >= gameWidth || 
+                    bullets[i].y < 0 || bullets[i].y >= gameHeight) {
+                    bullets.splice(i, 1);
+                }
+            }
+
+            // Update enemies and check for wave completion
+            if (enemies.length === 0) {
+                wave++;
+                spawnRate = Math.min(0.08, spawnRate * 1.15);
+                enemySpeed = Math.min(0.6, enemySpeed * 1.08);
+                // Spawn initial enemies for the new wave
+                for (let i = 0; i < wave; i++) {
+                    spawnEnemy();
+                }
+            }
+
+            // Update enemies
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const dx = player.x - enemies[i].x;
+                const dy = player.y - enemies[i].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                enemies[i].x += (dx / dist) * enemySpeed;
+                enemies[i].y += (dy / dist) * enemySpeed;
+
+                // Check bullet collisions
+                for (let j = bullets.length - 1; j >= 0; j--) {
+                    if (Math.abs(bullets[j].x - enemies[i].x) < 1 &&
+                        Math.abs(bullets[j].y - enemies[i].y) < 1) {
+                        score += 10;
+                        enemies.splice(i, 1);
+                        bullets.splice(j, 1);
+                        break;
+                    }
+                }
+
+                // Check player collision
+                if (i >= 0 && Math.abs(player.x - enemies[i].x) < 1 &&
+                    Math.abs(player.y - enemies[i].y) < 1) {
+                    endGame();
+                    return;
+                }
+            }
+
+            // Spawn enemies
+            if (Math.random() < spawnRate) {
+                spawnEnemy();
+            }
+
+            // Increase difficulty
+            if (enemies.length === 0) {
+                wave++;
+                spawnRate = Math.min(0.08, spawnRate * 1.15);
+                enemySpeed = Math.min(0.6, enemySpeed * 1.08);
+            }
+
+            drawGame();
+        }
+
+        function updatePlayer() {
+            if (!player.isJumping) {
+                player.velocityY += gravity;
+            }
+
+            player.x += player.velocityX;
+            player.y += player.velocityY;
+
+            // Apply friction
+            player.velocityX *= 0.9;
+
+            // Screen boundaries
+            if (player.x < 0) {
+                player.x = 0;
+                player.velocityX = 0;
+            } else if (player.x >= gameWidth) {
+                player.x = gameWidth - 1;
+                player.velocityX = 0;
+            }
+        }
+
+        function updateCamera() {
+            // Adjust camera to follow player vertically
+            const targetCameraY = player.y - (gameHeight * 0.7);
+            camera.y += (targetCameraY - camera.y) * 0.1;
+        }
+
+        function checkCollisions() {
+            player.isJumping = true;
+
+            platforms.forEach(platform => {
+                if (player.velocityY >= 0 && // Moving downward
+                    player.y >= platform.y && player.y <= platform.y + 1 && // Within platform height
+                    player.x >= platform.x && player.x < platform.x + platform.width) { // Within platform width
+                    
+                    player.y = platform.y;
+                    player.velocityY = 0;
+                    player.isJumping = false;
+
+                    // Update score when reaching new heights
+                    const newLevel = Math.floor(Math.abs(platform.y) / 3);
+                    if (newLevel > currentLevel) {
+                        currentLevel = newLevel;
+                        score = currentLevel * 100;
+                    }
+                }
+            });
+
+            // Check for floor collision
+            if (player.y >= floorLevel) {
+                player.y = floorLevel;
+                player.velocityY = 0;
+                player.isJumping = false;
+            }
+        }
+
+        function cleanupPlatforms() {
+            // Add new platforms as player moves up
+            const highestPlatform = platforms[platforms.length - 1];
+            if (player.y < highestPlatform.y + gameHeight) {
+                addNewPlatform();
+            }
+
+            // Remove platforms that are too far below
+            platforms = platforms.filter(platform => platform.y < camera.y + gameHeight * 2);
+        }
+
+        function drawGame() {
+            let screen = Array(gameHeight).fill().map(() => Array(gameWidth).fill(' '));
+            
+            // Draw bullets
+            bullets.forEach(bullet => {
+                const x = Math.floor(bullet.x);
+                const y = Math.floor(bullet.y);
+                if (x >= 0 && x < gameWidth && y >= 0 && y < gameHeight) {
+                    screen[y][x] = `<span style="color: var(--ctp-bullet)">*</span>`;
+                }
+            });
+
+            // Draw enemies
+            enemies.forEach(enemy => {
+                const x = Math.floor(enemy.x);
+                const y = Math.floor(enemy.y);
+                if (x >= 0 && x < gameWidth && y >= 0 && y < gameHeight) {
+                    const enemyColors = ['--ctp-enemy1', '--ctp-enemy2', '--ctp-enemy3'];
+                    screen[y][x] = `<span style="color: var(${enemyColors[enemy.type]})">${enemy.char}</span>`;
+                }
+            });
+
+            // Draw player
+            // Draw player with player color
+            const playerX = Math.floor(player.x);
+            const playerY = Math.floor(player.y);
+            if (playerX >= 0 && playerX < gameWidth && playerY >= 0 && playerY < gameHeight) {
+                screen[playerY][playerX] = `<span style="color: var(--ctp-player)">${player.char}</span>`;
+            }
+
+            // Draw score and wave
+            let statusText = `Score: ${score} | Wave: ${wave}`;
+            statusText.split('').forEach((char, i) => {
+                if (i < gameWidth) screen[0][i] = char;
+            });
+
+            // Render screen
+            document.getElementById('game-screen').innerHTML = 
+                screen.map(row => row.join('')).join('\n');
+        }
+
+        function endGame() {
+            gameState = 'end';
+            clearInterval(gameLoop);
+            submitScore(score);
+            setTimeout(() => {
+                if (confirm(`Game Over! Score: ${score}\nPlay again?`)) {
+                    gameState = 'start';
+                    document.getElementById('start-screen').style.display = 'block';
+                    document.getElementById('game-screen').style.display = 'none';
+                }
+            }, 100);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && gameState === 'start') {
+                startGame();
+                return;
+            }
+            
+            if (gameState === 'playing') {
+                switch(e.code) {
+                    // Movement controls (WASD)
+                    case 'KeyW': player.dy = -1; break;
+                    case 'KeyS': player.dy = 1; break;
+                    case 'KeyA': player.dx = -1; break;
+                    case 'KeyD': player.dx = 1; break;
+                    
+                    // Shooting controls (Arrow keys)
+                    case 'ArrowUp': 
+                        bullets.push({x: player.x, y: player.y, dx: 0, dy: -1});
+                        break;
+                    case 'ArrowDown':
+                        bullets.push({x: player.x, y: player.y, dx: 0, dy: 1});
+                        break;
+                    case 'ArrowLeft':
+                        bullets.push({x: player.x, y: player.y, dx: -1, dy: 0});
+                        break;
+                    case 'ArrowRight':
+                        bullets.push({x: player.x, y: player.y, dx: 1, dy: 0});
+                        break;
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (gameState === 'playing') {
+                switch(e.code) {
+                    // Stop movement when keys are released
+                    case 'KeyW': case 'KeyS': player.dy = 0; break;
+                    case 'KeyA': case 'KeyD': player.dx = 0; break;
+                }
+            }
+        });
+
+        // Placeholder for the leaderboard API
+        async function submitScore(score) {
+            try {
+                const response = await fetch('https://asciitron-api.leefamous.workers.dev/scores', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${window.ENV.API_KEY || ''}`
+                    },
+                    body: JSON.stringify({ score })
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('Error submitting score:', error);
+            }
+        }
+
+        async function getLeaderboard() {
+            try {
+                const response = await fetch('https://asciitron-api.leefamous.workers.dev/scores', {
+                    headers: {
+                        'Authorization': `Bearer ${window.ENV.API_KEY || ''}`
+                    }
+                });
+                const scores = await response.json();
+                updateLeaderboardDisplay(scores);
+            } catch (error) {
+                console.error('Error fetching leaderboard:', error);
+            }
+        }
+
+        function updateLeaderboardDisplay(scores) {
+            const scoresDiv = document.getElementById('scores');
+            scoresDiv.innerHTML = scores
+                .map((score, index) => `${index + 1}. ${score.name}: ${score.score}`)
+                .join('<br>');
+        }
+    </script>
+</body>
+</html>

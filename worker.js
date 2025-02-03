@@ -1,5 +1,3 @@
-// KV Namespace binding will be named SCORES
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -30,7 +28,7 @@ class RateLimiter {
 
 const rateLimiter = new RateLimiter();
 
-async function handleRequest(request) {
+async function handleRequest(request, env) {
   if (request.method === 'OPTIONS') {
     return new Response(null, {
       headers: corsHeaders
@@ -46,7 +44,7 @@ async function handleRequest(request) {
   }
 
   const apiKey = request.headers.get('Authorization');
-  if (!apiKey || apiKey !== `Bearer ${API_KEY}`) {
+  if (!apiKey || apiKey !== `Bearer ${env.API_KEY}`) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -57,7 +55,7 @@ async function handleRequest(request) {
 
   try {
     if (request.method === 'GET' && url.pathname === '/scores') {
-      const scores = await SCORES.get('highscores', 'json') || [];
+      const scores = await env.SCORES.get('highscores', 'json') || [];
       return new Response(JSON.stringify(scores.sort((a, b) => b.score - a.score).slice(0, 10)), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -69,13 +67,13 @@ async function handleRequest(request) {
         throw new Error('Invalid score');
       }
 
-      const scores = await SCORES.get('highscores', 'json') || [];
+      const scores = await env.SCORES.get('highscores', 'json') || [];
       scores.push({
         score,
         timestamp: Date.now()
       });
 
-      await SCORES.put('highscores', JSON.stringify(
+      await env.SCORES.put('highscores', JSON.stringify(
         scores.sort((a, b) => b.score - a.score).slice(0, 100)
       ));
 
@@ -97,5 +95,5 @@ async function handleRequest(request) {
 }
 
 addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request));
+  event.respondWith(handleRequest(event.request, event));
 });

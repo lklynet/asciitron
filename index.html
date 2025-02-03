@@ -434,9 +434,29 @@
         }
 
         function updateLeaderboardDisplay(scores) {
+            const catppuccinColors = [
+                '#f5c2e7', // pink
+                '#cba6f7', // mauve
+                '#89b4fa', // blue
+                '#94e2d5', // teal
+                '#a6e3a1', // green
+                '#fab387', // peach
+                '#f38ba8', // red
+                '#eba0ac'  // maroon
+            ];
+
+            function getColorFromTripcode(tripcode) {
+                // Use the first character of tripcode to determine color index
+                const colorIndex = tripcode.charCodeAt(0) % catppuccinColors.length;
+                return catppuccinColors[colorIndex];
+            }
+
             const scoresDiv = document.getElementById('scores');
             scoresDiv.innerHTML = scores
-                .map((score, index) => `${index + 1}. ${score.name} !${score.tripcode}: ${score.score}`)
+                .map((score, index) => {
+                    const color = getColorFromTripcode(score.tripcode);
+                    return `${index + 1}. <span style="color: ${color}">${score.name}</span> !${score.tripcode}: ${score.score}`;
+                })
                 .join('<br>');
         }
     </script>

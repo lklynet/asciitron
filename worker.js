@@ -6,25 +6,16 @@ const corsHeaders = {
   'Access-Control-Max-Age': '86400'
 };
 
-const adjectives = [
-  'cosmic', 'dancing', 'flying', 'magical', 'mystic',
-  'rainbow', 'singing', 'sparkling', 'whispering', 'glowing',
-  'bouncing', 'floating', 'laughing', 'shining', 'dreaming',
-  'jumping', 'running', 'smiling', 'twinkling', 'wandering'
-];
+const hashChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
 
-const nouns = [
-  'unicorn', 'dragon', 'phoenix', 'mermaid', 'wizard',
-  'butterfly', 'dolphin', 'elephant', 'penguin', 'tiger',
-  'banana', 'rainbow', 'star', 'cloud', 'moon',
-  'crystal', 'flower', 'river', 'mountain', 'forest'
-];
-
-function generateWordPair(hash) {
-  // Use first 4 bytes for adjective and next 4 bytes for noun
-  const adjIndex = parseInt(hash.slice(0, 8), 16) % adjectives.length;
-  const nounIndex = parseInt(hash.slice(8, 16), 16) % nouns.length;
-  return `${adjectives[adjIndex]}_${nouns[nounIndex]}`;
+function generateHash(input) {
+  // Use the first 6 bytes of the input hash to generate a 6-character hash
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    const byte = parseInt(input.slice(i * 2, (i + 1) * 2), 16);
+    result += hashChars[byte % hashChars.length];
+  }
+  return result;
 }
 
 class RateLimiter {
@@ -89,7 +80,7 @@ async function handleRequest(request, env) {
 
       const scores = await env.SCORES.get('highscores', 'json') || [];
       const username = name.split('#')[0];
-      const tripcode = generateWordPair(name.split('#')[1]); // Generate word pair from hash
+      const tripcode = generateHash(name.split('#')[1]); // Generate 6-character hash
       scores.push({
         score,
         name: username,

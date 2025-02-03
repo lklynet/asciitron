@@ -69,7 +69,8 @@ async function handleRequest(request, env) {
       const scores = await env.SCORES.get('highscores', 'json') || [];
       scores.push({
         score,
-        name,
+        name: name.split('#')[0], // Store only the display name
+        hash: name.split('#')[1], // Store the password hash
         timestamp: Date.now()
       });
 

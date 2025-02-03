@@ -1,7 +1,9 @@
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key',
+  'Access-Control-Allow-Credentials': 'true',
+  'Access-Control-Max-Age': '86400'
 };
 
 class RateLimiter {
@@ -43,8 +45,9 @@ async function handleRequest(request, env) {
     });
   }
 
-  const apiKey = request.headers.get('Authorization');
-  if (!apiKey || apiKey !== `Bearer ${env.API_KEY}`) {
+  const apiKey = request.headers.get('X-API-Key') || request.headers.get('Authorization');
+  if (!apiKey || (!apiKey.startsWith('Bearer ') && apiKey !== env.API_KEY) || 
+      (apiKey.startsWith('Bearer ') && apiKey.slice(7) !== env.API_KEY)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -98,6 +101,8 @@ async function handleRequest(request, env) {
   }
 }
 
-addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request, event.env));
-});
+export default {
+  async fetch(request, env, ctx) {
+    return handleRequest(request, env);
+  }
+};

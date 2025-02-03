@@ -381,17 +381,25 @@
         // Placeholder for the leaderboard API
         async function submitScore(score) {
             try {
+                const playerName = prompt('Enter your name for the leaderboard:', 'Player');
+                if (!playerName) return;
+                
                 const response = await fetch('https://asciitron-api.leefamous.workers.dev/scores', {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${window.ENV.API_KEY || ''}`
                     },
-                    body: JSON.stringify({ score })
+                    body: JSON.stringify({ score, name: playerName })
                 });
-                return await response.json();
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error('Failed to submit score');
+                }
+                await getLeaderboard(); // Refresh leaderboard after submission
             } catch (error) {
                 console.error('Error submitting score:', error);
+                alert('Failed to submit score. Please try again.');
             }
         }
 

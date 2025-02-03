@@ -62,14 +62,18 @@ async function handleRequest(request, env) {
     }
 
     if (request.method === 'POST' && url.pathname === '/scores') {
-      const { score } = await request.json();
+      const { score, name } = await request.json();
       if (typeof score !== 'number' || score < 0) {
         throw new Error('Invalid score');
+      }
+      if (!name || typeof name !== 'string') {
+        throw new Error('Invalid player name');
       }
 
       const scores = await env.SCORES.get('highscores', 'json') || [];
       scores.push({
         score,
+        name,
         timestamp: Date.now()
       });
 
@@ -95,5 +99,5 @@ async function handleRequest(request, env) {
 }
 
 addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request, event));
+  event.respondWith(handleRequest(event.request, event.env));
 });

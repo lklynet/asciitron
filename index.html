@@ -388,8 +388,7 @@
                 const response = await fetch('https://asciitron-api.leefamous.workers.dev/scores', {
                     method: 'POST',
                     headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${window.ENV.API_KEY || ''}`
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ score, name: playerName })
                 });
@@ -408,7 +407,7 @@
             try {
                 const response = await fetch('https://asciitron-api.leefamous.workers.dev/scores', {
                     headers: {
-                        'Authorization': `Bearer ${window.ENV.API_KEY || ''}`
+                        'Content-Type': 'application/json'
                     }
                 });
                 const scores = await response.json();

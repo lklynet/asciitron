@@ -45,14 +45,7 @@ async function handleRequest(request, env) {
     });
   }
 
-  const apiKey = request.headers.get('X-API-Key') || request.headers.get('Authorization');
-  if (!apiKey || (!apiKey.startsWith('Bearer ') && apiKey !== env.API_KEY) || 
-      (apiKey.startsWith('Bearer ') && apiKey.slice(7) !== env.API_KEY)) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
-  }
+  // Temporarily removed API key authentication
 
   const url = new URL(request.url);
 

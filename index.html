@@ -456,7 +456,7 @@
                 scoresDiv.innerHTML = scores
                     .map((score, index) => {
                         const color = getColorFromTripcode(score.tripcode);
-                        return `${index + 1}. <span style="color: ${color}">${score.name}</span> !${score.tripcode}: ${score.score}`;
+                        return `${(index + 1).toString().padStart(2, ' ')}. <span style="color: ${color}">${score.name}</span> <span style="font-family: monospace">!${score.tripcode}</span> - ${score.score}`;
                     })
                     .join('<br>');
             } else {

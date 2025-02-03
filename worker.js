@@ -8,12 +8,14 @@ const corsHeaders = {
 
 const hashChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
 
-function generateHash(input) {
-  // Use the first 6 bytes of the input hash to generate a 6-character hash
+function generateHash(input, username) {
+  // Combine username and input to create a unique hash
+  const combinedInput = username + '#' + input;
   let result = '';
+  // Use the combined input to generate a more unique hash
   for (let i = 0; i < 6; i++) {
-    const byte = parseInt(input.slice(i * 2, (i + 1) * 2), 16);
-    result += hashChars[byte % hashChars.length];
+    const charIndex = (combinedInput.charCodeAt(i % combinedInput.length) + input.charCodeAt(i % input.length)) % hashChars.length;
+    result += hashChars[charIndex];
   }
   return result;
 }
@@ -80,7 +82,7 @@ async function handleRequest(request, env) {
 
       const scores = await env.SCORES.get('highscores', 'json') || [];
       const username = name.split('#')[0];
-      const tripcode = generateHash(name.split('#')[1]); // Generate 6-character hash
+      const tripcode = generateHash(name.split('#')[1], username); // Generate unique 6-character hash using username and password
       scores.push({
         score,
         name: username,

@@ -403,7 +403,10 @@
                     headers: { 
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ score, name: playerName })
+                    body: JSON.stringify({ 
+                        score, 
+                        name: `${displayName}#${hashHex}` 
+                    })
                 });
                 const result = await response.json();
                 if (!result.success) {

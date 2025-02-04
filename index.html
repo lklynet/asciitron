@@ -3,111 +3,174 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ASCIItron</title>
-    <script src="config.js"></script>
+    <meta name="theme-color" content="#1e1e2e" />
+    <meta name="robots" content="index, follow" />
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="ASCIItron - Retro ASCII Shooter Game" />
+    <meta
+      name="description"
+      content="Play ASCIItron, a retro-style ASCII shooter game. Use WASD to move, arrow keys to shoot, and survive waves of enemies in this classic arcade experience."
+    />
+    <meta
+      name="keywords"
+      content="ASCII game, retro game, browser game, arcade shooter, ASCII art"
+    />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://asciitron.lkly.net/" />
+    <meta property="og:title" content="ASCIItron - Retro ASCII Shooter Game" />
+    <meta
+      property="og:description"
+      content="Play ASCIItron, a retro-style ASCII shooter game. Use WASD to move, arrow keys to shoot, and survive waves of enemies in this classic arcade experience."
+    />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://asciitron.lkly.net/" />
+    <meta
+      property="twitter:title"
+      content="ASCIItron - Retro ASCII Shooter Game"
+    />
+    <meta
+      property="twitter:description"
+      content="Play ASCIItron, a retro-style ASCII shooter game. Use WASD to move, arrow keys to shoot, and survive waves of enemies in this classic arcade experience."
+    />
+
+    <!-- Emoji Favicon -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕹️</text></svg>"
+    />
+
+    <title lang="en">ASCIItron</title>
     <link rel="stylesheet" href="styles.css" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "ASCIItron",
+        "description": "A retro-style ASCII shooter game where players use WASD to move and arrow keys to shoot, surviving waves of enemies in a classic arcade experience.",
+        "genre": ["Arcade", "Shooter", "Retro"],
+        "url": "https://asciitron.lkly.net/",
+        "inLanguage": "en",
+        "playMode": "SinglePlayer",
+        "gamePlatform": "Web Browser"
+      }
+    </script>
   </head>
-  <body>
-    <div id="start-screen">
-      <pre class="title-animation">
-        _____/<span style="color: var(--ctp-pink)">\\\\\\\\\</span>___________________________________________________________________________________________________        
-        ___/<span style="color: var(--ctp-pink)">\\\\\\\\\\\\</span>\_________________________________________________________________________________________________       
-         __/<span style="color: var(--ctp-pink)">\\\</span>/////////<span style="color: var(--ctp-pink)">\\</span>\_____________________________/<span style="color: var(--ctp-pink)">\\\</span>__/<span style="color: var(--ctp-pink)">\\</span>\_____/<span style="color: var(--ctp-pink)">\\\</span>________________________________________________      
-          _\/<span style="color: var(--ctp-pink)">\\</span>\_______\/<span style="color: var(--ctp-pink)">\\</span>\__/<span style="color: var(--ctp-pink)">\\\\\\\\\</span>\_____/<span style="color: var(--ctp-pink)">\\\\\\\</span>\_\///__\///___/<span style="color: var(--ctp-pink)">\\\\\\\\\\\</span>__/<span style="color: var(--ctp-pink)">\\</span>/<span style="color: var(--ctp-pink)">\\\\\\\</span>______/<span style="color: var(--ctp-pink)">\\\\</span>\_____/<span style="color: var(--ctp-pink)">\\</span>/<span style="color: var(--ctp-pink)">\\\\\\\</span>___     
-           _\/<span style="color: var(--ctp-pink)">\\\\\\\\\\\\\\</span>\_\/<span style="color: var(--ctp-pink)">\\</span>\//////____/<span style="color: var(--ctp-pink)">\\\</span>//////___/<span style="color: var(--ctp-pink)">\\\</span>__/<span style="color: var(--ctp-pink)">\\</span>\_\////<span style="color: var(--ctp-pink)">\\\</span>////__\/<span style="color: var(--ctp-pink)">\\</span>\/////<span style="color: var(--ctp-pink)">\\\</span>___/<span style="color: var(--ctp-pink)">\\\</span>///<span style="color: var(--ctp-pink)">\\\</span>__\/<span style="color: var(--ctp-pink)">\\\</span>////<span style="color: var(--ctp-pink)">\\\</span>__    
-            _\/<span style="color: var(--ctp-pink)">\\</span>\/////////<span style="color: var(--ctp-pink)">\\</span>\_\/<span style="color: var(--ctp-pink)">\\\\\\\\\\</span>__/<span style="color: var(--ctp-pink)">\\</span>\_________\/<span style="color: var(--ctp-pink)">\\</span>\_\/<span style="color: var(--ctp-pink)">\\</span>\____\/<span style="color: var(--ctp-pink)">\\</span>\______\/<span style="color: var(--ctp-pink)">\\</span>\___\///___/<span style="color: var(--ctp-pink)">\\\</span>__\//<span style="color: var(--ctp-pink)">\\</span>\_\/<span style="color: var(--ctp-pink)">\\</span>\__\//<span style="color: var(--ctp-pink)">\\</span>\_   
-             _\/<span style="color: var(--ctp-pink)">\\</span>\_______\/<span style="color: var(--ctp-pink)">\\</span>\_\////////<span style="color: var(--ctp-pink)">\\</span>\_\//<span style="color: var(--ctp-pink)">\\</span>\________\/<span style="color: var(--ctp-pink)">\\</span>\_\/<span style="color: var(--ctp-pink)">\\</span>\____\/<span style="color: var(--ctp-pink)">\\</span>\_/<span style="color: var(--ctp-pink)">\\</span>__\/<span style="color: var(--ctp-pink)">\\</span>\_________\//<span style="color: var(--ctp-pink)">\\</span>\__/<span style="color: var(--ctp-pink)">\\</span>\__\/<span style="color: var(--ctp-pink)">\\</span>\___\/<span style="color: var(--ctp-pink)">\\</span>\_  
-              _\/<span style="color: var(--ctp-pink)">\\</span>\_______\/<span style="color: var(--ctp-pink)">\\</span>\__/<span style="color: var(--ctp-pink)">\\\\\\\\\\\</span>__///<span style="color: var(--ctp-pink)">\\\\\\\</span>\_\/<span style="color: var(--ctp-pink)">\\</span>\_\/<span style="color: var(--ctp-pink)">\\</span>\____\//<span style="color: var(--ctp-pink)">\\\\\</span>___\/<span style="color: var(--ctp-pink)">\\</span>\__________///<span style="color: var(--ctp-pink)">\\\\\\</span>/___\/<span style="color: var(--ctp-pink)">\\</span>\___\/<span style="color: var(--ctp-pink)">\\</span>\_ 
-               _\///_______\///__\///////////_____\////////__\///__\///______\/////____\///_____________\/////_____\///____\///__
-                
-      </pre>
-
-      <div class="menu-options">
-        <span class="label">SCORES</span>
-        <span class="key">[T]</span> &nbsp;&nbsp;
-        <span class="label">INSTRUCTIONS</span>
-        <span class="key">[Y]</span> &nbsp;&nbsp;
-        <span class="label">STATS</span> <span class="key">[U]</span>
-      </div>
-
-      <pre class="graphics-animation">
-
-                          /[-])//  ___                          
-                     __ --\ `_/~--|  / \                        
-                   /_-/~~--~~ /~~~\\_\ /\                       
-                   |  |___|===|_-- | \ \ \                      
- _/~~~~~~~~|~~\,   ---|---\___/----|  \/\-\                     
- ~\________|__/   / // \__ |  ||  / | |   | |                   
-          ,~-|~~~~~\--, | \|--|/~|||  |   | |                   
-          [3-|____---~~ _--'==;/ _,   |   |_|                   
-                      /   /\__|_/  \  \__/--/                      
-                     /---/_\  -___/ |  /,--|                     
-                     /  /\/~--|   | |  \///                     
-                    /  / |-__ \    |/                           
-                   |--/ /      |-- | \                          
-                  \^~~\\/\      \   \/- _                       
-                   \    |  \     |~~\~~| \                      
-                    \    \  \     \   \  | \                    
-                      \    \ |     \   \    \                   
-                       |~~|\/\|     \   \   |                   
-                      |   |/         \_--_- |\                  
-                      |  /            /   |/\/                  
-                       ~~             /  /                      
-                                     |__/                       
-      </pre>
-
-      <div class="play-prompt blink">PRESS SPACE TO PLAY</div>
-    </div>
-    <div id="game-screen"></div>
-    <div id="end-screen">
-      <h2>GAME OVER</h2>
-      <p class="score-display">Your score: <span id="final-score"></span></p>
-      <div id="save-score-section">
-        <p>Enter your credentials to save your score:</p>
-        <input
-          type="text"
-          id="player-credentials"
-          placeholder="Name#Password"
-        />
-        <p id="save-score-text" class="key-prompt">[S] Save Score</p>
-      </div>
-      <p class="key-prompt">[R] Restart</p>
-    </div>
-    <div id="leaderboard">
-      <div id="score-hider">
-        <div id="scores"></div>
-      </div>
-    </div>
-    <div id="notification"></div>
-    <div id="scores-popup"></div>
-    <div id="modal-scores" class="modal">
-      <h2>Top Scores</h2>
-      <div id="modal-scores-content"></div>
-    </div>
-    <div id="modal-instructions" class="modal">
-      <h2>Instructions</h2>
-      <p>
-        Use WASD to move.<br />
-        Use Arrow Keys to shoot.<br />
-        Press Space to start the game.<br />
-        Defeat enemies and survive as many waves as possible.<br />
-        Have fun!
+  <body itemscope itemtype="https://schema.org/WebPage">
+    <noscript>
+      <p style="text-align: center; padding: 20px">
+        JavaScript is required to play ASCIItron. Please enable JavaScript to
+        continue.
       </p>
-    </div>
-    <div id="modal-stats" class="modal">
-      <h2>Stats</h2>
-      <p>
-        <span class="stat-label">Highest Score:</span>
-        <span id="stat-highscore" class="stat-value">0</span><br />
-        <span class="stat-label">Highest Wave:</span>
-        <span id="stat-highwave" class="stat-value">0</span><br />
-        <br />
-        <span class="stat-label">Games Played:</span>
-        <span id="stat-games-played" class="stat-value">0</span><br />
-        <span class="stat-label">Total Score:</span>
-        <span id="stat-total-score" class="stat-value">0</span>
-      </p>
-    </div>
-    <script src="scripts.js"></script>
+    </noscript>
+    <main>
+      <div id="start-screen">
+        <pre class="title-animation" aria-label="ASCIItron Title Art">
+          _____/<span style="color: var(--ctp-pink)">\\\\\\\\\</span>___________________________________________________________________________________________________        
+          ___/<span style="color: var(--ctp-pink)">\\\\\\\\\\\\</span>\_________________________________________________________________________________________________       
+           __/<span style="color: var(--ctp-pink)">\\\</span>/////////<span style="color: var(--ctp-pink)">\\</span>\_____________________________/<span style="color: var(--ctp-pink)">\\\</span>__/<span style="color: var(--ctp-pink)">\\</span>\_____/<span style="color: var(--ctp-pink)">\\\</span>________________________________________________      
+            _\/<span style="color: var(--ctp-pink)">\\</span>\_______\/<span style="color: var(--ctp-pink)">\\</span>\__/<span style="color: var(--ctp-pink)">\\\\\\\\\</span>\_____/<span style="color: var(--ctp-pink)">\\\\\\\</span>\_\///__\///___/<span style="color: var(--ctp-pink)">\\\\\\\\\\\</span>__/<span style="color: var(--ctp-pink)">\\</span>/<span style="color: var(--ctp-pink)">\\\\\\\</span>______/<span style="color: var(--ctp-pink)">\\\\</span>\_____/<span style="color: var(--ctp-pink)">\\</span>/<span style="color: var(--ctp-pink)">\\\\\\\</span>___     
+             _\/<span style="color: var(--ctp-pink)">\\\\\\\\\\\\\\</span>\_\/<span style="color: var(--ctp-pink)">\\</span>\//////____/<span style="color: var(--ctp-pink)">\\\</span>//////___/<span style="color: var(--ctp-pink)">\\\</span>__/<span style="color: var(--ctp-pink)">\\</span>\_\////<span style="color: var(--ctp-pink)">\\\</span>////__\/<span style="color: var(--ctp-pink)">\\</span>\/////<span style="color: var(--ctp-pink)">\\\</span>___/<span style="color: var(--ctp-pink)">\\\</span>///<span style="color: var(--ctp-pink)">\\\</span>__\/<span style="color: var(--ctp-pink)">\\\</span>////<span style="color: var(--ctp-pink)">\\\</span>__    
+              _\/<span style="color: var(--ctp-pink)">\\</span>\/////////<span style="color: var(--ctp-pink)">\\</span>\_\/<span style="color: var(--ctp-pink)">\\\\\\\\\\</span>__/<span style="color: var(--ctp-pink)">\\</span>\_________\/<span style="color: var(--ctp-pink)">\\</span>\_\/<span style="color: var(--ctp-pink)">\\</span>\____\/<span style="color: var(--ctp-pink)">\\</span>\______\/<span style="color: var(--ctp-pink)">\\</span>\___\///___/<span style="color: var(--ctp-pink)">\\\</span>__\//<span style="color: var(--ctp-pink)">\\</span>\_\/<span style="color: var(--ctp-pink)">\\</span>\__\//<span style="color: var(--ctp-pink)">\\</span>\_   
+               _\/<span style="color: var(--ctp-pink)">\\</span>\_______\/<span style="color: var(--ctp-pink)">\\</span>\_\////////<span style="color: var(--ctp-pink)">\\</span>\_\//<span style="color: var(--ctp-pink)">\\</span>\________\/<span style="color: var(--ctp-pink)">\\</span>\_\/<span style="color: var(--ctp-pink)">\\</span>\____\/<span style="color: var(--ctp-pink)">\\</span>\_/<span style="color: var(--ctp-pink)">\\</span>__\/<span style="color: var(--ctp-pink)">\\</span>\_________\//<span style="color: var(--ctp-pink)">\\</span>\__/<span style="color: var(--ctp-pink)">\\</span>\__\/<span style="color: var(--ctp-pink)">\\</span>\___\/<span style="color: var(--ctp-pink)">\\</span>\_  
+                _\/<span style="color: var(--ctp-pink)">\\</span>\_______\/<span style="color: var(--ctp-pink)">\\</span>\__/<span style="color: var(--ctp-pink)">\\\\\\\\\\\</span>__///<span style="color: var(--ctp-pink)">\\\\\\\</span>\_\/<span style="color: var(--ctp-pink)">\\</span>\_\/<span style="color: var(--ctp-pink)">\\</span>\____\//<span style="color: var(--ctp-pink)">\\\\\</span>___\/<span style="color: var(--ctp-pink)">\\</span>\__________///<span style="color: var(--ctp-pink)">\\\\\\</span>/___\/<span style="color: var(--ctp-pink)">\\</span>\___\/<span style="color: var(--ctp-pink)">\\</span>\_ 
+                 _\///_______\///__\///////////_____\////////__\///__\///______\/////____\///_____________\/////_____\///____\///__
+                  
+        </pre>
+
+        <div class="menu-options">
+          <span class="label">SCORES</span>
+          <span class="key">[T]</span> &nbsp;&nbsp;
+          <span class="label">INSTRUCTIONS</span>
+          <span class="key">[Y]</span> &nbsp;&nbsp;
+          <span class="label">STATS</span> <span class="key">[U]</span>
+        </div>
+
+        <pre class="graphics-animation">
+
+                            /[-])//  ___                          
+                       __ --\ `_/~--|  / \                        
+                     /_-/~~--~~ /~~~\\_\ /\                       
+                     |  |___|===|_-- | \ \ \                      
+          _/~~~~~~~~|~~\,   ---|---\___/----|  \/\-\                     
+          ~\________|__/   / // \__ |  ||  / | |   | |                   
+                   ,~-|~~~~~\--, | \|--|/~|||  |   | |                   
+                   [3-|____---~~ _--'==;/ _,   |   |_|                   
+                               /   /\__|_/  \  \__/--/                      
+                              /---/_\  -___/ |  /,--|                     
+                              /  /\/~--|   | |  \///                     
+                             /  / |-__ \    |/                           
+                            |--/ /      |-- | \                          
+                           \^~~\\/\      \   \/- _                       
+                            \    |  \     |~~\~~| \                      
+                             \    \  \     \   \  | \                    
+                               \    \ |     \   \    \                   
+                                |~~|\/\|     \   \   |                   
+                               |   |/         \_--_- |\                  
+                               |  /            /   |/\/                  
+                                ~~             /  /                      
+                                            |__/                       
+        </pre>
+
+        <div class="play-prompt blink">PRESS SPACE TO PLAY</div>
+      </div>
+      <div id="game-screen" aria-live="polite"></div>
+      <div id="end-screen">
+        <h2>GAME OVER</h2>
+        <p class="score-display">Your score: <span id="final-score"></span></p>
+        <div id="save-score-section">
+          <p>Enter your credentials to save your score:</p>
+          <input
+            type="text"
+            id="player-credentials"
+            placeholder="Name#Password"
+            aria-label="Enter username and password separated by hash symbol"
+          />
+          <p id="save-score-text" class="key-prompt">[S] Save Score</p>
+        </div>
+        <p class="key-prompt">[R] Restart</p>
+      </div>
+      <div id="leaderboard">
+        <div id="score-hider">
+          <div id="scores"></div>
+        </div>
+      </div>
+      <div id="notification"></div>
+      <div id="scores-popup"></div>
+      <div id="modal-scores" class="modal">
+        <h2>Top Scores</h2>
+        <div id="modal-scores-content"></div>
+      </div>
+      <div id="modal-instructions" class="modal">
+        <h2>Instructions</h2>
+        <p>
+          Use WASD to move.<br />
+          Use Arrow Keys to shoot.<br />
+          Press Space to start the game.<br />
+          Defeat enemies and survive as many waves as possible.<br />
+          Have fun!
+        </p>
+      </div>
+      <div id="modal-stats" class="modal">
+        <h2>Stats</h2>
+        <p>
+          <span class="stat-label">Highest Score:</span>
+          <span id="stat-highscore" class="stat-value">0</span><br />
+          <span class="stat-label">Highest Wave:</span>
+          <span id="stat-highwave" class="stat-value">0</span><br />
+          <br />
+          <span class="stat-label">Games Played:</span>
+          <span id="stat-games-played" class="stat-value">0</span><br />
+          <span class="stat-label">Total Score:</span>
+          <span id="stat-total-score" class="stat-value">0</span>
+        </p>
+      </div>
+    </main>
+    <script src="scripts.js" defer></script>
   </body>
 </html>

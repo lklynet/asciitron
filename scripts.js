@@ -321,7 +321,7 @@ function endGame() {
     document.getElementById("scores-popup").style.display = "block";
   });
       // Calculate time played in seconds
-      const timePlayed = Math.floor((Date.now() - window.gameStartTime) / 1000);
+      const timePlayed = Math.floor((Date.now() - window.gameStartTime) / 60000);
       plausible('Time Played', { props: { duration: timePlayed } });
 }
 

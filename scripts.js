@@ -2,9 +2,6 @@ let gameState = "start";
 let gameLoop;
 let score = 0;
 let wave = 0;
-let sessionStartTime;
-let shotsFired = 0;
-let scoreSubmitted = false;
 let player = {
   x: 40,
   y: 12,
@@ -21,12 +18,10 @@ let gameHeight = 24;
 let bulletSpeed = 0.8;
 let enemySpeed = 0.1;
 let spawnRate = 0.01;
+
 function startGame() {
   gameState = "playing";
-  sessionStartTime = Date.now();
-  shotsFired = 0;
-  scoreSubmitted = false;
-  plausible('gameStart');
+  // Close all modal windows
   document.getElementById("modal-scores").style.display = "none";
   document.getElementById("modal-instructions").style.display = "none";
   document.getElementById("modal-stats").style.display = "none";
@@ -36,6 +31,7 @@ function startGame() {
   initGame();
   gameLoop = setInterval(updateGame, 1000 / 30);
 }
+
 function initGame() {
   score = 0;
   wave = 0;
@@ -50,6 +46,7 @@ function initGame() {
   spawnRate = 0.02;
   enemySpeed = 0.2;
 }
+
 function spawnEnemy() {
   const side = Math.floor(Math.random() * 4);
   let x, y;
@@ -104,8 +101,6 @@ function updateGame() {
   // Update enemies and check for wave completion
   if (enemies.length === 0) {
     wave++;
-    // Track wave completion
-    plausible('waveComplete', { props: { wave: wave, score: score } });
     spawnRate = Math.min(0.08, spawnRate * 1.15);
     enemySpeed = Math.min(0.6, enemySpeed * 1.08);
     // Spawn initial enemies for the new wave
@@ -130,8 +125,6 @@ function updateGame() {
         Math.abs(bullets[j].y - enemies[i].y) < 1
       ) {
         score += 10;
-        // Track enemy defeat
-        plausible('enemyDefeated', { props: { enemyType: enemies[i].char, wave: wave } });
         enemies.splice(i, 1);
         bullets.splice(j, 1);
         break;
@@ -291,29 +284,9 @@ function drawGame() {
     .join("\n");
 }
 
-function shoot() {
-  shotsFired++;
-  bullets.push({
-    x: player.x,
-    y: player.y,
-    dx: player.shootDx,
-    dy: player.shootDy,
-  });
-}
-
 function endGame() {
   gameState = "end";
   clearInterval(gameLoop);
-  const sessionDuration = Math.floor((Date.now() - sessionStartTime) / 1000);
-  // Track game end event with additional metrics
-  plausible('gameEnd', { 
-    props: { 
-      finalScore: score, 
-      finalWave: wave,
-      sessionDuration: sessionDuration,
-      shotsFired: shotsFired
-    } 
-  });
   // Update high scores in localStorage
   const highScore = parseInt(localStorage.getItem("asciitron-highscore")) || 0;
   const highWave = parseInt(localStorage.getItem("asciitron-highwave")) || 0;
@@ -531,6 +504,7 @@ async function getLeaderboard() {
       { headers: { "Content-Type": "application/json" } }
     );
     const scores = await response.json();
+    console.log("Leaderboard response:", scores);
     updateLeaderboardDisplay(scores); // for any existing leaderboard UI
     updateScoresPopup(scores); // update the new bottom popup
     return scores;
@@ -541,6 +515,7 @@ async function getLeaderboard() {
 
 // NEW: Update the on-screen leaderboard (inside #scores) with the top 100 scores
 function updateLeaderboardDisplay(scores) {
+  console.log("Updating leaderboard with", scores.length, "scores.");
   const catppuccinColors = [
     "#f5c2e7", // pink
     "#cba6f7", // mauve
@@ -653,8 +628,6 @@ function saveScore() {
       if (!result.success) {
         throw new Error("Failed to submit score");
       }
-      // Track score submission
-      plausible('scoreSubmit', { props: { score: score, wave: wave } });
       localStorage.setItem(
         "asciitron-credentials",
         document.getElementById("player-credentials").value

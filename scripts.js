@@ -24,6 +24,8 @@ function startGame() {
   document.getElementById("start-screen").style.display = "none";
   document.getElementById("game-screen").style.display = "block";
   document.getElementById("leaderboard").style.display = "block";
+  // Track game start
+  plausible("Game Started");
   initGame();
   gameLoop = setInterval(updateGame, 1000 / 30);
 }
@@ -283,6 +285,13 @@ function drawGame() {
 function endGame() {
   gameState = "end";
   clearInterval(gameLoop);
+  // Track game end with score and wave data
+  plausible("Game Over", {
+    props: {
+      score: score,
+      wave: wave,
+    },
+  });
   // Update high scores in localStorage
   const highScore = parseInt(localStorage.getItem("asciitron-highscore")) || 0;
   const highWave = parseInt(localStorage.getItem("asciitron-highwave")) || 0;
@@ -629,7 +638,12 @@ function saveScore() {
         document.getElementById("player-credentials").value
       );
       getLeaderboard();
-      showNotification("Score saved!");
+      // Track successful score submission
+      plausible("Score Submitted", {
+        props: {
+          score: score,
+        },
+      });
       // Update the save text and disable the save functionality
       document.getElementById("save-score-text").textContent = "Score Saved!";
     })

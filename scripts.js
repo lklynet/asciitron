@@ -64,7 +64,7 @@ function startGame() {
 
 function initGame() {
   score = 0;
-  wave = 4;
+  wave = 0;
   player.x = 40;
   player.y = 12;
   player.dx = 0;

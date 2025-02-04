@@ -723,10 +723,7 @@ function showNotification(message, type = "info") {
 // New function to save the score using credentials entered in the end-screen
 function saveScore() {
   // Check if score was already saved
-  if (
-    document.getElementById("save-score-text").textContent === "[V] Save Score" &&
-    document.getElementById("save-score-text").style.opacity === "0.3"
-  ) {
+  if (document.getElementById("save-score-text").textContent === "[V] Score Saved!") {
     return;
   }
 
@@ -782,7 +779,9 @@ function saveScore() {
       // Update the save text and disable the save functionality
       const saveText = document.getElementById("save-score-text");
       saveText.textContent = "[V] Score Saved!";
-      saveText.style.opacity = "0.5";
+      saveText.style.opacity = "0.3";
+      saveText.style.cursor = "default";
+      saveText.style.pointerEvents = "none";
     })
     .catch((error) => {
       console.error("Error saving score:", error);

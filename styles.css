@@ -1,0 +1,292 @@
+:root {
+  --ctp-base: #1e1e2e;
+  --ctp-bg: #1e1e2e;
+  --ctp-text: #cdd6f4;
+  /* Main colors */
+  --ctp-player: #89b4fa;
+  --ctp-enemy1: #f38ba8;
+  --ctp-enemy2: #fab387;
+  --ctp-enemy3: #a6e3a1;
+  --ctp-bullet: #f5e0dc;
+  /* Additional Catppuccin colors */
+  --ctp-rosewater: #f5e0dc;
+  --ctp-flamingo: #f2cdcd;
+  --ctp-pink: #f5c2e7;
+  --ctp-mauve: #cba6f7;
+  --ctp-red: #f38ba8;
+  --ctp-maroon: #eba0ac;
+  --ctp-peach: #fab387;
+  --ctp-yellow: #f9e2af;
+  --ctp-green: #a6e3a1;
+  --ctp-teal: #94e2d5;
+  --ctp-blue: #89b4fa;
+  --ctp-sapphire: #74c7ec;
+  --ctp-lavender: #b4befe;
+}
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--ctp-bg);
+  color: var(--ctp-text);
+  font-family: "Courier New", monospace;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+#start-screen {
+  text-align: center;
+  font-size: 24px;
+  opacity: 1;
+  background-color: #2a2a3e;
+  transition: opacity 0.5s ease;
+  width: 53ch;
+  height: 27ch;
+  padding: 10px;
+  border-radius: 4px;
+}
+#game-screen {
+  display: none;
+  white-space: pre;
+  font-size: 16px;
+  line-height: 1;
+  background-color: #2a2a3e;
+  padding: 10px;
+  border-radius: 4px;
+  width: 80ch;
+}
+#leaderboard {
+  display: none;
+  position: absolute;
+  text-align: left;
+  top: 10%;
+  left: 40%;
+}
+#score-hider {
+  display: none;
+}
+#scores {
+  font-family: monospace;
+  white-space: pre;
+}
+.blink {
+  animation: blink 1s infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+/* New animation styles for the start screen */
+.title-animation {
+  text-align: center;
+  font-size: 8px;
+  font-family: "Courier New", monospace;
+  animation: titleFadeIn 2s ease-in-out;
+  margin-bottom: 5px;
+}
+
+@keyframes titleFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.menu-options {
+  text-align: center;
+  font-size: 16px;
+  margin-bottom: 5px;
+  animation: fadeIn 2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.menu-options span.key {
+  color: var(--ctp-mauve);
+}
+
+.menu-options span.label {
+  color: var(--ctp-lavender);
+}
+
+.graphics-animation {
+  text-align: center;
+  font-size: 8px;
+  font-family: "Courier New", monospace;
+  animation: graphicsSlideIn 2s ease-in-out;
+  margin-bottom: 5px;
+}
+
+@keyframes graphicsSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.play-prompt {
+  text-align: center;
+  font-size: 20px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+#end-screen {
+  display: none;
+  text-align: left;
+  background-color: #2a2a3e;
+  color: var(--ctp-text);
+  font-family: "Courier New", monospace;
+  padding: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80ch;
+  height: 40ch;
+  border-radius: 4px;
+}
+#player-credentials {
+  outline: none;
+  border: none;
+  background: transparent;
+  color: var(--ctp-text);
+  font-family: "Courier New", monospace;
+}
+#end-screen h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  animation: blink 1s infinite;
+  text-align: left;
+  color: var(--ctp-red);
+}
+
+#end-screen input {
+  background-color: var(--ctp-bg);
+  color: var(--ctp-text);
+  padding: 5px;
+  margin: 10px 0 10px 0;
+  border: 0px;
+  font-family: "Courier New", monospace;
+  width: 200px;
+}
+
+#save-score-section {
+  text-align: left;
+  margin: 20px 0;
+}
+
+#end-screen button {
+  background-color: var(--ctp-base);
+  color: var(--ctp-text);
+  font-family: "Courier New", monospace;
+  border: 0px;
+  padding: 5px 10px;
+  cursor: pointer;
+  margin: 5px 5px 5px 0;
+}
+
+#end-screen button:hover {
+  background-color: var(--ctp-player);
+}
+
+#notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ctp-bg);
+  padding: 10px 20px;
+  color: var(--ctp-text);
+  font-family: "Courier New", monospace;
+  border-radius: 5px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 1000;
+}
+
+.modal {
+  display: none;
+  text-align: center;
+  background-color: var(--ctp-bg);
+  color: var(--ctp-text);
+  font-family: "Courier New", monospace;
+  padding: 20px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 5px;
+  z-index: 1001;
+}
+
+/* Make the scores area inside the scores modal scrollable */
+#modal-scores-content {
+  max-height: 60vh;
+  overflow-y: auto;
+  text-align: left;
+  font-size: 14px;
+  padding-right: 10px;
+}
+
+/* NEW: Popup for end game scores at bottom center */
+#scores-popup {
+  display: none;
+  position: fixed;
+  bottom: 400px;
+  right: 375px;
+  transform: translateX(-50%);
+  background-color: rgba(30, 30, 46, 0.9);
+  color: var(--ctp-text);
+  font-family: "Courier New", monospace;
+  border-radius: 5px;
+  padding: 20px;
+  max-height: auto;
+  overflow-y: auto;
+  z-index: 1002;
+}
+
+/* Update game status text */
+.status-text {
+  color: var(--ctp-yellow);
+}
+
+/* Update modal headers */
+.modal h2 {
+  color: var(--ctp-mauve);
+}
+
+/* Update stats display */
+#modal-stats .stat-label {
+  color: var(--ctp-sapphire);
+}
+
+#modal-stats .stat-value {
+  color: var(--ctp-peach);
+}
+
+/* Update game over screen */
+#end-screen .score-display {
+  color: var(--ctp-green);
+}
+
+#end-screen .key-prompt {
+  color: var(--ctp-mauve);
+}

@@ -225,13 +225,15 @@ body {
 .modal {
   display: none;
   text-align: center;
-  background-color: var(--ctp-bg);
+  background-color: #2a2a3e;
   color: var(--ctp-text);
   font-family: "Courier New", monospace;
-  padding: 20px;
-  position: fixed;
-  top: 50%;
-  left: 50%;
+  padding: 0px;
+  position: absolute;
+  height: 240px;
+  width: 290px;
+  margin-left: 400px;
+  margin-top: -144px;
   transform: translate(-50%, -50%);
   border-radius: 5px;
   z-index: 1001;

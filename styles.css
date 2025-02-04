@@ -250,7 +250,7 @@ body {
 #scores-popup {
   display: none;
   position: static;
-  margin-left: 650px;
+  margin-left: 720px;
   transform: translateX(-50%);
   background-color: rgba(30, 30, 46, 0.9);
   color: var(--ctp-text);

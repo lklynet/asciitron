@@ -532,15 +532,10 @@ function updateLeaderboardDisplay(scores) {
     scoresDiv.innerHTML = topScores
       .map((score, index) => {
         const color = getColorFromTripcode(score.tripcode);
-        return `${(index + 1)
-          .toString()
-          .padStart(2, " ")}. <span style="color: ${color}">${
-          score.name
-        }</span> <span style="font-family: monospace">!${
-          score.tripcode
-        }</span> - ${score.score}`;
+        const rowStyle = index % 2 === 0 ? "" : " background-color: rgba(49, 50, 68, 0.3);";
+        return `<div style="font-family: 'Courier New', monospace; white-space: pre;${rowStyle}">${(index + 1).toString().padStart(3, ' ')}. <span style="color: ${color}; display: inline-block; width: 165px">${score.name}<span style="font-family: monospace; font-size: 0.7em; opacity: 0.3; display: inline-block; width: 60px"> !${score.tripcode}</span></span>-<span style="color: ${color}; opacity: 0.8; display: inline-block; width: 40px; text-align: right">${score.score}</span></div>`;
       })
-      .join("<br>");
+      .join("");
   } else {
     scoresDiv.innerHTML = "No scores yet";
   }
@@ -655,31 +650,16 @@ function restartGame() {
 
 // NEW: Update the bottom scores popup with the top 10 scores.
 function updateScoresPopup(scores) {
-  const catppuccinColors = [
-    "#f5c2e7", // pink
-    "#cba6f7", // mauve
-    "#89b4fa", // blue
-    "#94e2d5", // teal
-    "#a6e3a1", // green
-    "#fab387", // peach
-    "#f38ba8", // red
-    "#eba0ac", // maroon
-  ];
-
   const popup = document.getElementById("scores-popup");
   if (scores && scores.length > 0) {
     const topScores = scores.slice(0, 10);
     popup.innerHTML = topScores
       .map((score, index) => {
         const color = getColorFromTripcode(score.tripcode);
-        return `${(index + 1)
-          .toString()
-          .padStart(2, " ")}. <span style="color: ${color}">${score.name}</span>
-         <span style="font-family: monospace">!${score.tripcode}</span> - ${
-          score.score
-        }`;
+        const rowStyle = index % 2 === 0 ? "" : " background-color: rgba(49, 50, 68, 0.3);";
+        return `<div style="font-family: 'Courier New', monospace; white-space: pre;${rowStyle}">${(index + 1).toString().padStart(3, ' ')}. <span style="color: ${color}; display: inline-block; width: 165px">${score.name}<span style="font-family: monospace; font-size: 0.7em; opacity: 0.3; display: inline-block; width: 60px"> !${score.tripcode}</span></span>-<span style="color: ${color}; opacity: 0.8; display: inline-block; width: 40px; text-align: right">${score.score}</span></div>`;
       })
-      .join("<br>");
+      .join("");
   } else {
     popup.innerHTML = "No scores yet.";
   }

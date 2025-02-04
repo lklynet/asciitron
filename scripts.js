@@ -677,6 +677,14 @@ function updateLeaderboardDisplay(scores) {
   ];
   const scoresDiv = document.getElementById("scores");
   if (scores && scores.length > 0) {
+    // Update the high score display
+    const highestScoreEntry = scores.reduce((prev, current) => 
+      prev.score > current.score ? prev : current
+    );
+    const color = getColorFromTripcode(highestScoreEntry.tripcode);
+    document.getElementById("display-high-score").innerHTML = 
+      `<div style="font-family: 'Courier New', monospace; white-space: pre;">1. <span style="color: ${color}; display: inline-block; width: 165px">${highestScoreEntry.name}<span style="font-family: monospace; font-size: 0.7em; opacity: 0.3; display: inline-block; width: 60px"> !${highestScoreEntry.tripcode}</span></span><span style="color: ${color}; opacity: 0.8; display: inline-block; width: 40px; text-align: right">${highestScoreEntry.score}</span></div>`;
+
     const topScores = scores.slice(0, 100);
     scoresDiv.innerHTML = topScores
       .map((score, index) => {
@@ -723,7 +731,7 @@ function showNotification(message, type = "info") {
 // New function to save the score using credentials entered in the end-screen
 function saveScore() {
   // Check if score was already saved
-  if (document.getElementById("save-score-text").textContent === "[V] Score Saved!") {
+  if (document.getElementById("save-splaytext").textContent === "[V] Score Saved!") {
     return;
   }
 

@@ -2,6 +2,9 @@ let gameState = "start";
 let gameLoop;
 let score = 0;
 let wave = 0;
+let sessionStartTime;
+let shotsFired = 0;
+let scoreSubmitted = false;
 let player = {
   x: 40,
   y: 12,
@@ -21,6 +24,15 @@ let spawnRate = 0.01;
 
 function startGame() {
   gameState = "playing";
+  sessionStartTime = Date.now();
+  shotsFired = 0;
+  scoreSubmitted = false;
+  // Track game start event
+  plausible('gameStart');
+  // Close all modal windows
+  document.getElementById("modal-scores").style.display = "none";
+  document.getElementById("modal-instructions").style.display = "none";
+  document.getElementById("modal-stats").style.display = "none";
   document.getElementById("start-screen").style.display = "none";
   document.getElementById("game-screen").style.display = "block";
   document.getElementById("leaderboard").style.display = "block";
@@ -97,6 +109,8 @@ function updateGame() {
   // Update enemies and check for wave completion
   if (enemies.length === 0) {
     wave++;
+    // Track wave completion
+    plausible('waveComplete', { props: { wave: wave, score: score } });
     spawnRate = Math.min(0.08, spawnRate * 1.15);
     enemySpeed = Math.min(0.6, enemySpeed * 1.08);
     // Spawn initial enemies for the new wave
@@ -121,6 +135,8 @@ function updateGame() {
         Math.abs(bullets[j].y - enemies[i].y) < 1
       ) {
         score += 10;
+        // Track enemy defeat
+        plausible('enemyDefeated', { props: { enemyType: enemies[i].char, wave: wave } });
         enemies.splice(i, 1);
         bullets.splice(j, 1);
         break;
@@ -280,9 +296,29 @@ function drawGame() {
     .join("\n");
 }
 
+function shoot() {
+  shotsFired++;
+  bullets.push({
+    x: player.x,
+    y: player.y,
+    dx: player.shootDx,
+    dy: player.shootDy,
+  });
+}
+
 function endGame() {
   gameState = "end";
   clearInterval(gameLoop);
+  const sessionDuration = Math.floor((Date.now() - sessionStartTime) / 1000);
+  // Track game end event with additional metrics
+  plausible('gameEnd', { 
+    props: { 
+      finalScore: score, 
+      finalWave: wave,
+      sessionDuration: sessionDuration,
+      shotsFired: shotsFired
+    } 
+  });
   // Update high scores in localStorage
   const highScore = parseInt(localStorage.getItem("asciitron-highscore")) || 0;
   const highWave = parseInt(localStorage.getItem("asciitron-highwave")) || 0;
@@ -624,6 +660,8 @@ function saveScore() {
       if (!result.success) {
         throw new Error("Failed to submit score");
       }
+      // Track score submission
+      plausible('scoreSubmit', { props: { score: score, wave: wave } });
       localStorage.setItem(
         "asciitron-credentials",
         document.getElementById("player-credentials").value

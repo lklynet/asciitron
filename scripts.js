@@ -731,7 +731,7 @@ function showNotification(message, type = "info") {
 // New function to save the score using credentials entered in the end-screen
 function saveScore() {
   // Check if score was already saved
-  if (document.getElementById("save-splaytext").textContent === "[V] Score Saved!") {
+  if (document.getElementById("save-score-text").textContent === "[V] Score Saved!") {
     return;
   }
 

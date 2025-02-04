@@ -13,11 +13,41 @@ let player = {
 };
 let bullets = [];
 let enemies = [];
+let enemyBullets = [];
 let gameWidth = 80;
 let gameHeight = 24;
 let bulletSpeed = 0.8;
 let enemySpeed = 0.1;
 let spawnRate = 0.01;
+
+// Boss configurations
+const BOSS_TYPES = {
+  TANK: {
+    char: "$$",
+    health: 20,
+    speed: 0.05,
+    points: 20,
+    shootInterval: 3000,
+    ability: "mine"
+  },
+  SHOOTER: {
+    char: "@@",
+    health: 20,
+    speed: 0.15,
+    points: 20,
+    shootInterval: 1000,
+    ability: "shoot"
+  },
+  SPAWNER: {
+    char: "%%",
+    health: 20,
+    speed: 0.1,
+    points: 20,
+    spawnInterval: 2000,
+    ability: "spawn"
+  }
+};
+
 
 function startGame() {
   gameState = "playing";
@@ -30,12 +60,11 @@ function startGame() {
   document.getElementById("leaderboard").style.display = "block";
   initGame();
   gameLoop = setInterval(updateGame, 1000 / 30);
-  plausible('Game Started');
 }
 
 function initGame() {
   score = 0;
-  wave = 0;
+  wave = 4;
   player.x = 40;
   player.y = 12;
   player.dx = 0;
@@ -44,11 +73,12 @@ function initGame() {
   player.shootDy = -1;
   bullets = [];
   enemies = [];
+  enemyBullets = [];
   spawnRate = 0.02;
   enemySpeed = 0.2;
 }
 
-function spawnEnemy() {
+function spawnEnemy(isBoss = false) {
   const side = Math.floor(Math.random() * 4);
   let x, y;
 
@@ -71,12 +101,35 @@ function spawnEnemy() {
       break;
   }
 
-  enemies.push({
-    x: x,
-    y: y,
-    char: Math.random() < 0.33 ? "&" : Math.random() < 0.5 ? "%" : "#",
-    type: Math.floor(Math.random() * 3),
-  });
+  if (isBoss) {
+    const bossTypes = Object.keys(BOSS_TYPES);
+    const selectedBoss = bossTypes[Math.floor(Math.random() * bossTypes.length)];
+    const bossConfig = BOSS_TYPES[selectedBoss];
+
+    const boss = {
+      x: x,
+      y: y,
+      char: bossConfig.char,
+      health: bossConfig.health,
+      speed: bossConfig.speed,
+      points: bossConfig.points,
+      ability: bossConfig.ability,
+      isBoss: true,
+      lastAbilityUse: Date.now(),
+      abilityInterval: bossConfig.shootInterval || bossConfig.spawnInterval
+    };
+
+    enemies.push(boss);
+  } else {
+    enemies.push({
+      x: x,
+      y: y,
+      char: Math.random() < 0.33 ? "&" : Math.random() < 0.5 ? "%" : "#",
+      type: Math.floor(Math.random() * 3),
+      health: 1,
+      isBoss: false
+    });
+  }
 }
 
 function updateGame() {
@@ -99,16 +152,49 @@ function updateGame() {
     }
   }
 
+  // Update enemy bullets
+  for (let i = enemyBullets.length - 1; i >= 0; i--) {
+    enemyBullets[i].x += enemyBullets[i].dx * bulletSpeed;
+    enemyBullets[i].y += enemyBullets[i].dy * bulletSpeed;
+
+    if (
+      enemyBullets[i].x < 0 ||
+      enemyBullets[i].x >= gameWidth ||
+      enemyBullets[i].y < 0 ||
+      enemyBullets[i].y >= gameHeight
+    ) {
+      enemyBullets.splice(i, 1);
+      continue;
+    }
+
+    // Check player collision with enemy bullets
+    if (
+      Math.abs(player.x - enemyBullets[i].x) < 1 &&
+      Math.abs(player.y - enemyBullets[i].y) < 1
+    ) {
+      endGame();
+      return;
+    }
+  }
+
   // Update enemies and check for wave completion
   if (enemies.length === 0) {
     wave++;
     spawnRate = Math.min(0.08, spawnRate * 1.15);
     enemySpeed = Math.min(0.6, enemySpeed * 1.08);
-    // Spawn initial enemies for the new wave
-    for (let i = 0; i < wave; i++) {
-      spawnEnemy();
+    
+    // Check if it's a boss wave (every 5 waves)
+    const isBossWave = wave % 5 === 0;
+    
+    // Spawn boss or regular enemies
+    if (isBossWave) {
+      spawnEnemy(true); // Spawn a boss
+    } else {
+      // Spawn regular enemies
+      for (let i = 0; i < wave; i++) {
+        spawnEnemy();
+      }
     }
-    plausible('Waves Completed');  // Track wave completion
   }
 
   // Update enemies
@@ -126,11 +212,62 @@ function updateGame() {
         Math.abs(bullets[j].x - enemies[i].x) < 1 &&
         Math.abs(bullets[j].y - enemies[i].y) < 1
       ) {
-        score += 10;
-        enemies.splice(i, 1);
+        enemies[i].health--;
         bullets.splice(j, 1);
-        plausible('Enemies Killed'); 
-        break;
+        
+        if (enemies[i].health <= 0) {
+          score += enemies[i].isBoss ? enemies[i].points : 10;
+          enemies.splice(i, 1);
+          break;
+        }
+      }
+    }
+
+    // Boss abilities
+    if (enemies[i] && enemies[i].isBoss && Date.now() - enemies[i].lastAbilityUse >= enemies[i].abilityInterval) {
+      const boss = enemies[i];
+      boss.lastAbilityUse = Date.now();
+
+      switch (boss.ability) {
+        case "shoot":
+          // Shoot in 8 directions
+          const directions = [
+            {dx: 0, dy: -1}, {dx: 1, dy: -1}, {dx: 1, dy: 0}, {dx: 1, dy: 1},
+            {dx: 0, dy: 1}, {dx: -1, dy: 1}, {dx: -1, dy: 0}, {dx: -1, dy: -1}
+          ];
+          directions.forEach(dir => {
+            enemyBullets.push({
+              x: boss.x,
+              y: boss.y,
+              dx: dir.dx,
+              dy: dir.dy,
+              char: "*"
+            });
+          });
+          break;
+
+        case "mine":
+          // Drop a stationary bullet
+          enemyBullets.push({
+            x: boss.x,
+            y: boss.y,
+            dx: 0,
+            dy: 0,
+            char: "o"
+          });
+          break;
+
+        case "spawn":
+          // Spawn a regular enemy at boss position
+          enemies.push({
+            x: boss.x,
+            y: boss.y,
+            char: Math.random() < 0.33 ? "&" : Math.random() < 0.5 ? "%" : "#",
+            type: Math.floor(Math.random() * 3),
+            health: 1,
+            isBoss: false
+          });
+          break;
       }
     }
 
@@ -239,12 +376,21 @@ function drawGame() {
     .fill()
     .map(() => Array(gameWidth).fill(" "));
 
-  // Draw bullets
+  // Draw bullets (both player and enemy)
   bullets.forEach((bullet) => {
     const x = Math.floor(bullet.x);
     const y = Math.floor(bullet.y);
     if (x >= 0 && x < gameWidth && y >= 0 && y < gameHeight) {
       screen[y][x] = `<span style="color: var(--ctp-bullet)">*</span>`;
+    }
+  });
+
+  // Draw enemy bullets
+  enemyBullets.forEach((bullet) => {
+    const x = Math.floor(bullet.x);
+    const y = Math.floor(bullet.y);
+    if (x >= 0 && x < gameWidth && y >= 0 && y < gameHeight) {
+      screen[y][x] = `<span style="color: var(--ctp-enemy-bullet)">${bullet.char}</span>`;
     }
   });
 
@@ -320,9 +466,6 @@ function endGame() {
   getLeaderboard().then(() => {
     document.getElementById("scores-popup").style.display = "block";
   });
-      // Calculate time played in seconds
-      const timePlayed = Math.floor((Date.now() - window.gameStartTime) / 60000);
-      plausible('Time Played', { props: { duration: timePlayed } });
 }
 
 document.addEventListener("keydown", (e) => {
@@ -418,19 +561,15 @@ document.addEventListener("keydown", (e) => {
       // Shooting controls (Arrow keys)
       case "ArrowUp":
         bullets.push({ x: player.x, y: player.y, dx: 0, dy: -1 });
-        plausible('Shots Fired');
         break;
       case "ArrowDown":
         bullets.push({ x: player.x, y: player.y, dx: 0, dy: 1 });
-        plausible('Shots Fired');
         break;
       case "ArrowLeft":
         bullets.push({ x: player.x, y: player.y, dx: -1, dy: 0 });
-        plausible('Shots Fired');
         break;
       case "ArrowRight":
         bullets.push({ x: player.x, y: player.y, dx: 1, dy: 0 });
-        plausible('Shots Fired');
         break;
     }
   }
@@ -585,7 +724,8 @@ function showNotification(message, type = "info") {
 function saveScore() {
   // Check if score was already saved
   if (
-    document.getElementById("save-score-text").textContent === "[V] Score Saved!"
+    document.getElementById("save-score-text").textContent === "[V] Save Score" &&
+    document.getElementById("save-score-text").style.opacity === "0.3"
   ) {
     return;
   }

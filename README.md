@@ -2,13 +2,59 @@
 
 ASCIItron is a retro-style ASCII shooter game built with vanilla JavaScript. Navigate through waves of enemies, rack up high scores, and compete for the top spot on the global leaderboard.
 
-## 🎮 Gameplay
+## Game Mechanics
 
-- Use **WASD** keys to move your character (@)
-- Use **Arrow Keys** to shoot in four directions
-- Survive increasingly difficult waves of enemies
-- Collect points by destroying enemies
-- Compare your scores with other players globally
+### Core Gameplay
+- Control your character (@) using WASD keys for movement
+- Shoot bullets (*) using arrow keys in four directions
+- Survive waves of enemies while scoring points
+
+### Enemies
+Regular Enemies:
+- & (33% spawn rate)
+- % (17% spawn rate)
+- # (50% spawn rate)
+
+Boss Types (every 5 waves):
+- Tank Boss ($$): Slow movement, drops mines
+- Shooter Boss (@@): Fires projectiles in patterns
+- Spawner Boss (%%): Hides behind regular enemies
+
+Enemy behavior:
+- Regular enemies spawn from all sides
+- Move towards the player
+- Regular enemies die in one hit
+- Kill player on contact
+- Regular enemies worth 10 points
+- Bosses worth 20 points
+
+### Wave System
+- Each wave starts with enemies equal to wave number
+- Wave increases when all enemies are cleared
+- Boss waves occur every 5 waves
+- Difficulty increases progressively:
+  - Spawn rate: starts at 1%, increases 15% per wave (max 8%)
+  - Enemy speed: starts at 0.1, increases 8% per wave (max 0.6)
+
+### Scoring
+- 10 points per enemy destroyed
+- Score persists through waves
+- Local and online leaderboards
+- Tracks personal stats:
+  - Highest score
+  - Highest wave
+  - Games played
+  - Total score
+
+### Controls
+- WASD: Movement
+- Arrow Keys: Shoot
+- Space: Start game
+- T: View scores
+- Y: View instructions
+- U: View stats
+- V: Save score (after game over)
+- R: Restart (after game over)
 
 ## 🛠️ Technical Stack
 
@@ -70,10 +116,6 @@ asciitron/
 - Input validation on both client and server sides
 - Usernames limited to 12 characters
 
-## 📝 License
-
-MIT License - See LICENSE file for details
-
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -81,15 +123,3 @@ MIT License - See LICENSE file for details
 3. Commit your changes
 4. Push to the branch
 5. Open a Pull Request
-
-## 🐛 Known Issues
-
-- Character movement needs fine-tuning at screen edges
-- ASCII art rendering may vary slightly between browsers
-- Some mobile browsers may have keyboard input issues
-
-## 📫 Contact
-
-For issues, suggestions, or contributions, please open an issue on GitHub.
-
----

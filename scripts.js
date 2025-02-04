@@ -384,7 +384,7 @@ document.addEventListener("keydown", (e) => {
       return;
     }
 
-    if (e.code === "KeyS") {
+    if (e.code === "KeyV") {
       saveScore();
       return;
     } else if (e.code === "KeyR") {
@@ -575,7 +575,7 @@ function showNotification(message, type = "info") {
 function saveScore() {
   // Check if score was already saved
   if (
-    document.getElementById("save-score-text").textContent === "Score Saved!"
+    document.getElementById("save-score-text").textContent === "[V] Score Saved!"
   ) {
     return;
   }
@@ -630,7 +630,9 @@ function saveScore() {
       getLeaderboard();
       showNotification("Score saved!");
       // Update the save text and disable the save functionality
-      document.getElementById("save-score-text").textContent = "Score Saved!";
+      const saveText = document.getElementById("save-score-text");
+      saveText.textContent = "[V] Score Saved!";
+      saveText.style.opacity = "0.5";
     })
     .catch((error) => {
       console.error("Error saving score:", error);
@@ -642,7 +644,9 @@ function restartGame() {
   document.getElementById("end-screen").style.display = "none";
   document.getElementById("player-credentials").value = "";
   // Reset the save score text for the next game
-  document.getElementById("save-score-text").textContent = "[S] Save Score";
+  const saveText = document.getElementById("save-score-text");
+  saveText.textContent = "[V] Save Score";
+  saveText.style.opacity = "1";
   document.getElementById("scores-popup").style.display = "none";
   document.getElementById("start-screen").style.display = "block";
   gameState = "start";

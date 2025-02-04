@@ -682,7 +682,7 @@ function updateLeaderboardDisplay(scores) {
       .map((score, index) => {
         const color = getColorFromTripcode(score.tripcode);
         const rowStyle = index % 2 === 0 ? "" : " background-color: rgba(49, 50, 68, 0.3);";
-        return `<div style="font-family: 'Courier New', monospace; white-space: pre;${rowStyle}">${(index + 1).toString().padStart(3, ' ')}. <span style="color: ${color}; display: inline-block; width: 165px">${score.name}<span style="font-family: monospace; font-size: 0.7em; opacity: 0.3; display: inline-block; width: 60px"> !${score.tripcode}</span></span>-<span style="color: ${color}; opacity: 0.8; display: inline-block; width: 40px; text-align: right">${score.score}</span></div>`;
+        return `<div style="font-family: 'Courier New', monospace; white-space: pre;${rowStyle}">${(index + 1).toString().padStart(3, ' ')}. <span style="color: ${color}; display: inline-block; width: 165px">${score.name}<span style="font-family: monospace; font-size: 0.7em; opacity: 0.3; display: inline-block; width: 60px"> !${score.tripcode}</span></span><span style="color: ${color}; opacity: 0.8; display: inline-block; width: 40px; text-align: right">${score.score}</span></div>`;
       })
       .join("");
   } else {
@@ -810,7 +810,7 @@ function updateScoresPopup(scores) {
       .map((score, index) => {
         const color = getColorFromTripcode(score.tripcode);
         const rowStyle = index % 2 === 0 ? "" : " background-color: rgba(49, 50, 68, 0.3);";
-        return `<div style="font-family: 'Courier New', monospace; white-space: pre;${rowStyle}">${(index + 1).toString().padStart(3, ' ')}. <span style="color: ${color}; display: inline-block; width: 165px">${score.name}<span style="font-family: monospace; font-size: 0.7em; opacity: 0.3; display: inline-block; width: 60px"> !${score.tripcode}</span></span>-<span style="color: ${color}; opacity: 0.8; display: inline-block; width: 40px; text-align: right">${score.score}</span></div>`;
+        return `<div style="font-family: 'Courier New', monospace; white-space: pre;${rowStyle}">${(index + 1).toString().padStart(3, ' ')}. <span style="color: ${color}; display: inline-block; width: 165px">${score.name}<span style="font-family: monospace; font-size: 0.7em; opacity: 0.3; display: inline-block; width: 60px"> !${score.tripcode}</span></span><span style="color: ${color}; opacity: 0.8; display: inline-block; width: 40px; text-align: right">${score.score}</span></div>`;
       })
       .join("");
   } else {

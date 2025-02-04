@@ -161,7 +161,7 @@ body {
 
 .play-prompt {
   display: block;
-  position: static;
+  position: absolute;
   text-align: center;
   font-size: 20px;
   left: 37%;
@@ -251,8 +251,8 @@ body {
   position: absolute;
   height: 240px;
   width: 290px;
-  margin-left: 475px;
-  margin-top: 50px;
+  margin-left: 550px;
+  margin-top: 260px;
   transform: translate(-50%, -50%);
   border-radius: 5px;
   z-index: 1001;

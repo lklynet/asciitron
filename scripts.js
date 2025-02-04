@@ -30,6 +30,7 @@ function startGame() {
   document.getElementById("leaderboard").style.display = "block";
   initGame();
   gameLoop = setInterval(updateGame, 1000 / 30);
+  plausible('Game Started');
 }
 
 function initGame() {
@@ -107,6 +108,7 @@ function updateGame() {
     for (let i = 0; i < wave; i++) {
       spawnEnemy();
     }
+    plausible('Waves Completed');  // Track wave completion
   }
 
   // Update enemies
@@ -127,6 +129,7 @@ function updateGame() {
         score += 10;
         enemies.splice(i, 1);
         bullets.splice(j, 1);
+        plausible('Enemies Killed'); 
         break;
       }
     }
@@ -317,6 +320,9 @@ function endGame() {
   getLeaderboard().then(() => {
     document.getElementById("scores-popup").style.display = "block";
   });
+      // Calculate time played in seconds
+      const timePlayed = Math.floor((Date.now() - window.gameStartTime) / 1000);
+      plausible('Time Played', { props: { duration: timePlayed } });
 }
 
 document.addEventListener("keydown", (e) => {
@@ -412,15 +418,19 @@ document.addEventListener("keydown", (e) => {
       // Shooting controls (Arrow keys)
       case "ArrowUp":
         bullets.push({ x: player.x, y: player.y, dx: 0, dy: -1 });
+        plausible('Shots Fired');
         break;
       case "ArrowDown":
         bullets.push({ x: player.x, y: player.y, dx: 0, dy: 1 });
+        plausible('Shots Fired');
         break;
       case "ArrowLeft":
         bullets.push({ x: player.x, y: player.y, dx: -1, dy: 0 });
+        plausible('Shots Fired');
         break;
       case "ArrowRight":
         bullets.push({ x: player.x, y: player.y, dx: 1, dy: 0 });
+        plausible('Shots Fired');
         break;
     }
   }

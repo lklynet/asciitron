@@ -249,9 +249,8 @@ body {
 /* NEW: Popup for end game scores at bottom center */
 #scores-popup {
   display: none;
-  position: fixed;
-  bottom: 400px;
-  right: 375px;
+  position: static;
+  margin-left: 650px;
   transform: translateX(-50%);
   background-color: rgba(30, 30, 46, 0.9);
   color: var(--ctp-text);

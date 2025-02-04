@@ -21,15 +21,12 @@ let gameHeight = 24;
 let bulletSpeed = 0.8;
 let enemySpeed = 0.1;
 let spawnRate = 0.01;
-
 function startGame() {
   gameState = "playing";
   sessionStartTime = Date.now();
   shotsFired = 0;
   scoreSubmitted = false;
-  // Track game start event
   plausible('gameStart');
-  // Close all modal windows
   document.getElementById("modal-scores").style.display = "none";
   document.getElementById("modal-instructions").style.display = "none";
   document.getElementById("modal-stats").style.display = "none";
@@ -39,7 +36,6 @@ function startGame() {
   initGame();
   gameLoop = setInterval(updateGame, 1000 / 30);
 }
-
 function initGame() {
   score = 0;
   wave = 0;
@@ -54,7 +50,6 @@ function initGame() {
   spawnRate = 0.02;
   enemySpeed = 0.2;
 }
-
 function spawnEnemy() {
   const side = Math.floor(Math.random() * 4);
   let x, y;
@@ -536,7 +531,6 @@ async function getLeaderboard() {
       { headers: { "Content-Type": "application/json" } }
     );
     const scores = await response.json();
-    console.log("Leaderboard response:", scores);
     updateLeaderboardDisplay(scores); // for any existing leaderboard UI
     updateScoresPopup(scores); // update the new bottom popup
     return scores;
@@ -547,7 +541,6 @@ async function getLeaderboard() {
 
 // NEW: Update the on-screen leaderboard (inside #scores) with the top 100 scores
 function updateLeaderboardDisplay(scores) {
-  console.log("Updating leaderboard with", scores.length, "scores.");
   const catppuccinColors = [
     "#f5c2e7", // pink
     "#cba6f7", // mauve

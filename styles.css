@@ -190,8 +190,9 @@ body {
   font-family: "Courier New", monospace;
 }
 #end-screen h2 {
-  font-size: 28px;
-  margin-bottom: 10px;
+  font-size: 24px;
+  margin-top: 70px;
+  font-weight: normal;
   animation: blink 1s infinite;
   text-align: left;
   color: var(--ctp-red);
@@ -272,7 +273,7 @@ body {
   display: none;
   position: absolute;
   margin-left: 750px;
-  margin-top: 75px;
+  margin-top: 90px;
   transform: translateX(-50%);
   background-color: rgba(30, 30, 46, 0.9);
   color: var(--ctp-text);
@@ -337,7 +338,7 @@ body {
 
 #display-high-score > * {
   display: table-cell;
-  padding: 0 10px;
+  padding: 0px 10px;
   text-align: left;
   white-space: nowrap;
 }

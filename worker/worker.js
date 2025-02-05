@@ -65,8 +65,6 @@ async function handleRequest(request, env) {
     });
   }
 
-  // Temporarily removed API key authentication
-
   const url = new URL(request.url);
 
   try {

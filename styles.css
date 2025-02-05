@@ -1,11 +1,10 @@
-/* ==========================================================================
-   Variables - Catppuccin Mocha Color Scheme
-   ========================================================================== */
-   html { 
-    animation-duration: 0.03s;  /* Slowed down from 0.01s */
-    animation-name: textflicker;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
+/*  */
+/* #scan-lines { */
+html { 
+  animation-duration: 0.03s;  /* Slowed down from 0.01s */
+  animation-name: textflicker;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
 }
 
 @keyframes textflicker {
@@ -60,6 +59,10 @@ to { text-shadow: 1px 0.2px 1px #ea36af, -0.5px -0.2px 1px #75fa69; }
   100% { transform: scale(1.02, 1.02); }
 }
 
+/* ==========================================================================
+   Variables - Catppuccin Mocha Color Scheme
+   ========================================================================== */
+   
 :root {
   /* Base Theme Colors */
   --ctp-base: #1e1e2e;

@@ -1,7 +1,21 @@
+//=============================================================================
+// GAME STATE AND GLOBAL VARIABLES
+//=============================================================================
+
+// Core game state
 let gameState = "start";
 let gameLoop;
 let score = 0;
 let wave = 0;
+
+// Stalker mechanics
+let stalkers = [];         // Active stalkers
+let stalkerSpawnTime = 30000;  // Time before first stalker (30 seconds)
+let stalkerSpawnInterval = 15000;  // Time between additional stalkers (15 seconds)
+let lastStalkerSpawn = 0;    // Track last stalker spawn time
+let waveStartTime = 0;       // Track when the current wave started
+
+// Player configuration
 let player = {
   x: 40,
   y: 12,
@@ -11,20 +25,29 @@ let player = {
   shootDx: 0,
   shootDy: -1,
 };
-let bullets = [];
-let enemies = [];
-let enemyBullets = [];
-let gameWidth = 80;
-let gameHeight = 24;
-let bulletSpeed = 0.8;
-let enemySpeed = 0.1;
-let spawnRate = 0.01;
 
-// Boss configurations
+// Game entities
+let bullets = [];        // Player projectiles
+let enemies = [];        // Active enemies
+let enemyBullets = [];   // Enemy projectiles
+
+// Game dimensions and mechanics
+let gameWidth = 80;      // Game area width
+let gameHeight = 24;     // Game area height
+let bulletSpeed = 0.8;   // Projectile velocity
+let enemySpeed = 0.1;    // Base enemy movement speed
+let spawnRate = 0.01;    // Initial enemy spawn probability
+let stalkerSpeed = 0.05; // Stalker movement speed
+
+//=============================================================================
+// BOSS CONFIGURATIONS
+//=============================================================================
+
+// Define different boss types with unique behaviors and attributes
 const BOSS_TYPES = {
   TANK: {
     char: "$$",
-    health: 20,
+    health: 25,
     speed: 0.05,
     points: 20,
     shootInterval: 3000,
@@ -32,16 +55,16 @@ const BOSS_TYPES = {
   },
   SHOOTER: {
     char: "@@",
-    health: 20,
-    speed: 0.15,
+    health: 15,
+    speed: 0.1,
     points: 20,
-    shootInterval: 1000,
+    shootInterval: 2000,
     ability: "shoot"
   },
   SPAWNER: {
     char: "%%",
     health: 20,
-    speed: 0.1,
+    speed: 0.15,
     points: 20,
     spawnInterval: 2000,
     ability: "spawn"
@@ -49,6 +72,18 @@ const BOSS_TYPES = {
 };
 
 
+//=============================================================================
+// GAME LIFECYCLE MANAGEMENT
+//=============================================================================
+
+/**
+ * Initializes and starts a new game session
+ * - Sets game state to playing
+ * - Hides UI modals
+ * - Shows game screen
+ * - Initializes game state
+ * - Starts game loop
+ */
 function startGame() {
   gameState = "playing";
   // Close all modal windows
@@ -62,6 +97,13 @@ function startGame() {
   gameLoop = setInterval(updateGame, 1000 / 30);
 }
 
+/**
+ * Resets all game variables to their initial states
+ * - Resets score and wave
+ * - Resets player position and movement
+ * - Clears all game entities
+ * - Resets game difficulty parameters
+ */
 function initGame() {
   score = 0;
   wave = 0;
@@ -78,6 +120,14 @@ function initGame() {
   enemySpeed = 0.2;
 }
 
+//=============================================================================
+// ENEMY SPAWNING AND MANAGEMENT
+//=============================================================================
+
+/**
+ * Creates and spawns a new enemy or boss at a random edge location
+ * @param {boolean} isBoss - Whether to spawn a boss enemy
+ */
 function spawnEnemy(isBoss = false) {
   const side = Math.floor(Math.random() * 4);
   let x, y;
@@ -121,17 +171,34 @@ function spawnEnemy(isBoss = false) {
 
     enemies.push(boss);
   } else {
+    const enemyType = Math.random() < 0.33 ? "&" : Math.random() < 0.5 ? "%" : "#";
+    const baseSpeed = enemyType === "&" ? 0.8 : enemyType === "%" ? 1.2 : 1.0;
     enemies.push({
       x: x,
       y: y,
-      char: Math.random() < 0.33 ? "&" : Math.random() < 0.5 ? "%" : "#",
+      char: enemyType,
       type: Math.floor(Math.random() * 3),
       health: 1,
-      isBoss: false
+      isBoss: false,
+      baseSpeed: baseSpeed
     });
   }
 }
 
+//=============================================================================
+// GAME UPDATE LOOP
+//=============================================================================
+
+/**
+ * Main game update function - called every frame
+ * Handles:
+ * - Player movement and boundaries
+ * - Bullet updates and collisions
+ * - Enemy updates and AI
+ * - Wave progression
+ * - Score tracking
+ * - Game state changes
+ */
 function updateGame() {
   // Update player movement and shooting
   player.x = Math.max(0, Math.min(gameWidth - 1, player.x + player.dx));
@@ -182,6 +249,8 @@ function updateGame() {
     wave++;
     spawnRate = Math.min(0.08, spawnRate * 1.15);
     enemySpeed = Math.min(0.6, enemySpeed * 1.08);
+    waveStartTime = Date.now();
+    stalkers = []; // Reset stalkers for new wave
     
     // Check if it's a boss wave (every 5 waves)
     const isBossWave = wave % 5 === 0;
@@ -197,14 +266,50 @@ function updateGame() {
     }
   }
 
+  // Handle stalker spawning
+  const currentTime = Date.now();
+  if (currentTime - waveStartTime >= stalkerSpawnTime && 
+      (stalkers.length === 0 || currentTime - lastStalkerSpawn >= stalkerSpawnInterval)) {
+    // Spawn a new stalker
+    const side = Math.floor(Math.random() * 4);
+    let x, y;
+    switch (side) {
+      case 0: x = Math.random() * gameWidth; y = 0; break;
+      case 1: x = gameWidth - 1; y = Math.random() * gameHeight; break;
+      case 2: x = Math.random() * gameWidth; y = gameHeight - 1; break;
+      case 3: x = 0; y = Math.random() * gameHeight; break;
+    }
+    stalkers.push({ x, y, char: "Ξ" });
+    lastStalkerSpawn = currentTime;
+  }
+
+  // Update stalkers
+  stalkers.forEach(stalker => {
+    const dx = player.x - stalker.x;
+    const dy = player.y - stalker.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    stalker.x += (dx / dist) * stalkerSpeed;
+    stalker.y += (dy / dist) * stalkerSpeed;
+
+    // Check player collision with stalker
+    if (Math.abs(player.x - stalker.x) < 1 && Math.abs(player.y - stalker.y) < 1) {
+      endGame();
+      return;
+    }
+  });
+
   // Update enemies
   for (let i = enemies.length - 1; i >= 0; i--) {
+    // Skip if enemy was already removed
+    if (!enemies[i]) continue;
+    
     const dx = player.x - enemies[i].x;
     const dy = player.y - enemies[i].y;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    enemies[i].x += (dx / dist) * enemySpeed;
-    enemies[i].y += (dy / dist) * enemySpeed;
+    const currentSpeed = enemySpeed * (enemies[i].baseSpeed || 1.0);
+    enemies[i].x += (dx / dist) * currentSpeed;
+    enemies[i].y += (dy / dist) * currentSpeed;
 
     // Check bullet collisions
     for (let j = bullets.length - 1; j >= 0; j--) {
@@ -223,8 +328,11 @@ function updateGame() {
       }
     }
 
+    // Skip rest of loop if enemy was destroyed
+    if (!enemies[i]) continue;
+
     // Boss abilities
-    if (enemies[i] && enemies[i].isBoss && Date.now() - enemies[i].lastAbilityUse >= enemies[i].abilityInterval) {
+    if (enemies[i].isBoss && Date.now() - enemies[i].lastAbilityUse >= enemies[i].abilityInterval) {
       const boss = enemies[i];
       boss.lastAbilityUse = Date.now();
 
@@ -287,90 +395,21 @@ function updateGame() {
     spawnEnemy();
   }
 
-  // Increase difficulty
-  if (enemies.length === 0) {
-    wave++;
-    spawnRate = Math.min(0.08, spawnRate * 1.15);
-    enemySpeed = Math.min(0.6, enemySpeed * 1.08);
-  }
-
   drawGame();
 }
 
-function updatePlayer() {
-  if (!player.isJumping) {
-    player.velocityY += gravity;
-  }
 
-  player.x += player.velocityX;
-  player.y += player.velocityY;
+//=============================================================================
+// RENDERING
+//=============================================================================
 
-  // Apply friction
-  player.velocityX *= 0.9;
-
-  // Screen boundaries
-  if (player.x < 0) {
-    player.x = 0;
-    player.velocityX = 0;
-  } else if (player.x >= gameWidth) {
-    player.x = gameWidth - 1;
-    player.velocityX = 0;
-  }
-}
-
-function updateCamera() {
-  // Adjust camera to follow player vertically
-  const targetCameraY = player.y - gameHeight * 0.7;
-  camera.y += (targetCameraY - camera.y) * 0.1;
-}
-
-function checkCollisions() {
-  player.isJumping = true;
-
-  platforms.forEach((platform) => {
-    if (
-      player.velocityY >= 0 && // Moving downward
-      player.y >= platform.y &&
-      player.y <= platform.y + 1 && // Within platform height
-      player.x >= platform.x &&
-      player.x < platform.x + platform.width
-    ) {
-      // Within platform width
-
-      player.y = platform.y;
-      player.velocityY = 0;
-      player.isJumping = false;
-
-      // Update score when reaching new heights
-      const newLevel = Math.floor(Math.abs(platform.y) / 3);
-      if (newLevel > currentLevel) {
-        currentLevel = newLevel;
-        score = currentLevel * 100;
-      }
-    }
-  });
-
-  // Check for floor collision
-  if (player.y >= floorLevel) {
-    player.y = floorLevel;
-    player.velocityY = 0;
-    player.isJumping = false;
-  }
-}
-
-function cleanupPlatforms() {
-  // Add new platforms as player moves up
-  const highestPlatform = platforms[platforms.length - 1];
-  if (player.y < highestPlatform.y + gameHeight) {
-    addNewPlatform();
-  }
-
-  // Remove platforms that are too far below
-  platforms = platforms.filter(
-    (platform) => platform.y < camera.y + gameHeight * 2
-  );
-}
-
+/**
+ * Renders the game state to the screen
+ * - Creates the game grid
+ * - Renders bullets, enemies, and player
+ * - Applies colors and styling
+ * - Updates the game UI
+ */
 function drawGame() {
   let screen = Array(gameHeight)
     .fill()
@@ -394,6 +433,15 @@ function drawGame() {
     }
   });
 
+  // Draw stalkers
+  stalkers.forEach((stalker) => {
+    const x = Math.floor(stalker.x);
+    const y = Math.floor(stalker.y);
+    if (x >= 0 && x < gameWidth && y >= 0 && y < gameHeight) {
+      screen[y][x] = `<span style="color: var(--ctp-stalker); animation: pulse 2s infinite;">${stalker.char}</span>`;
+    }
+  });
+
   // Draw enemies
   enemies.forEach((enemy) => {
     const x = Math.floor(enemy.x);
@@ -407,7 +455,6 @@ function drawGame() {
   });
 
   // Draw player
-  // Draw player with player color
   const playerX = Math.floor(player.x);
   const playerY = Math.floor(player.y);
   if (
@@ -433,6 +480,14 @@ function drawGame() {
     .join("<br>");
 }
   player.y = Math.max(1, Math.min(gameHeight - 1, player.y + player.dy));
+/**
+ * Handles game over state
+ * - Stops game loop
+ * - Updates high scores
+ * - Shows end screen
+ * - Updates statistics
+ * - Displays leaderboard
+ */
 function endGame() {
   gameState = "end";
   clearInterval(gameLoop);
@@ -468,6 +523,16 @@ function endGame() {
   });
 }
 
+//=============================================================================
+// EVENT HANDLERS
+//=============================================================================
+
+/**
+ * Global keyboard event handler
+ * - Manages game state transitions
+ * - Controls player movement
+ * - Handles UI interactions
+ */
 document.addEventListener("keydown", (e) => {
   if (gameState === "start") {
     if (e.code === "Space") {

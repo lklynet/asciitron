@@ -1,4 +1,5 @@
 :root {
+  --ctp-stalker: #ff6b6b;
   --ctp-base: #1e1e2e;
   --ctp-bg: #1e1e2e;
   --ctp-text: #cdd6f4;
@@ -92,6 +93,18 @@ body {
 .blink {
   animation: blink 1s infinite;
 }
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 @keyframes blink {
   50% {
     opacity: 0;
@@ -256,9 +269,9 @@ body {
   position: absolute;
   height: 240px;
   width: 290px;
-  top: 57%;
+  top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -20%);
   border-radius: 5px;
   z-index: 1001;
 }

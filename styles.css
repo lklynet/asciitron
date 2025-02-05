@@ -175,7 +175,6 @@ body {
   line-height: 1;
   transition: opacity 0.5s ease;
   margin-top: 9px;
-  padding-inline: 10px;
   width: 80ch;
   height: 23em;
   border-radius: 4px;
@@ -183,8 +182,11 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  padding-left: 10px;
+  box-sizing: border-box;  /* This ensures padding doesn't affect overall width */
 }
 #player-credentials {
+  padding-left: 10px;
   outline: none;
   border: none;
   background: transparent;

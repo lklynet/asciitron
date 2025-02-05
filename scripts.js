@@ -430,9 +430,9 @@ function drawGame() {
   // Render screen
   document.getElementById("game-screen").innerHTML = screen
     .map((row) => row.join(""))
-    .join("\n");
+    .join("<br>");
 }
-
+  player.y = Math.max(1, Math.min(gameHeight - 1, player.y + player.dy));
 function endGame() {
   gameState = "end";
   clearInterval(gameLoop);

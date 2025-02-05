@@ -119,19 +119,25 @@
       </div>
       <div id="game-screen" aria-live="polite"></div>
       <div id="end-screen">
-        <h2>GAME OVER</h2>
+        <h2>
+  ________    _____      _____  ___________ ____________   _________________________ 
+ /  _____/   /  _  \    /     \ \_   _____/ \_____  \   \ /   /\_   _____/\______   \
+/   \  ___  /  /_\  \  /  \ /  \ |    __)_   /   |   \   Y   /  |    __)_  |       _/
+\    \_\  \/    |    \/    Y    \|        \ /    |    \     /   |        \ |    |   \
+ \______  /\____|__  /\____|__  /_______  / \_______  /\___/   /_______  / |____|_  /
+        \/         \/         \/        \/          \/                 \/         \/ 
+</h2>
         <p class="score-display">Your score: <span id="final-score"></span></p>
         <div id="save-score-section">
-          <p>Enter your credentials to save your score:</p>
+          <p id="enter-user">Enter your credentials<br /> to save your score:</p>
           <input
             type="text"
             id="player-credentials"
             placeholder="Name#Password"
             aria-label="Enter username and password separated by hash symbol"
           />
-          <p id="save-score-text" class="key-prompt plausible-event-name=Score+Submitted">[V] Save Score</p>
+          <p id="save-score-text" class="key-prompt">[V] Save Score</p><p class="key-prompt">[R] Restart</p>
         </div>
-        <p class="key-prompt">[R] Restart</p>
       </div>
       <div id="leaderboard">
         <div id="score-hider">

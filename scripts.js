@@ -30,10 +30,9 @@ let player = {
 let bullets = [];        // Player projectiles
 let enemies = [];        // Active enemies
 let enemyBullets = [];   // Enemy projectiles
-
 // Game dimensions and mechanics
 let gameWidth = 80;      // Game area width
-let gameHeight = 24;     // Game area height
+let gameHeight = 35;     // Game area height
 let bulletSpeed = 0.8;   // Projectile velocity
 let enemySpeed = 0.1;    // Base enemy movement speed
 let spawnRate = 0.01;    // Initial enemy spawn probability
@@ -93,6 +92,7 @@ function startGame() {
   document.getElementById("start-screen").style.display = "none";
   document.getElementById("game-screen").style.display = "block";
   document.getElementById("leaderboard").style.display = "block";
+  document.getElementById("high-score-display").style.display = "block";
   initGame();
   gameLoop = setInterval(updateGame, 1000 / 30);
 }
@@ -512,6 +512,7 @@ function endGame() {
   document.getElementById("game-screen").style.display = "none";
   document.getElementById("final-score").textContent = score;
   document.getElementById("end-screen").style.display = "block";
+  document.getElementById("high-score-display").style.display = "none";
   // Prefill credentials if stored in localStorage for easier submission
   const savedCredentials = localStorage.getItem("asciitron-credentials");
   if (savedCredentials) {

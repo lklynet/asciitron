@@ -1,15 +1,21 @@
+/* ==========================================================================
+   Variables - Catppuccin Mocha Color Scheme
+   ========================================================================== */
 :root {
-  --ctp-stalker: #ff6b6b;
+  /* Base Theme Colors */
   --ctp-base: #1e1e2e;
   --ctp-bg: #1e1e2e;
   --ctp-text: #cdd6f4;
-  /* Main colors */
-  --ctp-player: #89b4fa;
-  --ctp-enemy1: #f38ba8;
-  --ctp-enemy2: #fab387;
-  --ctp-enemy3: #a6e3a1;
-  --ctp-bullet: #f5e0dc;
-  /* Additional Catppuccin colors */
+
+  /* Game Entity Colors */
+  --ctp-stalker: #ff6b6b;  /* Special enemy type */
+  --ctp-player: #89b4fa;   /* Player character */
+  --ctp-enemy1: #f38ba8;   /* First enemy type */
+  --ctp-enemy2: #fab387;   /* Second enemy type */
+  --ctp-enemy3: #a6e3a1;   /* Third enemy type */
+  --ctp-bullet: #f5e0dc;   /* Projectiles */
+
+  /* Extended Catppuccin Palette */
   --ctp-rosewater: #f5e0dc;
   --ctp-flamingo: #f2cdcd;
   --ctp-pink: #f5c2e7;
@@ -24,6 +30,10 @@
   --ctp-sapphire: #74c7ec;
   --ctp-lavender: #b4befe;
 }
+
+/* ==========================================================================
+   Global Styles
+   ========================================================================== */
 body {
   margin: 0;
   padding: 0;
@@ -36,44 +46,79 @@ body {
   align-items: center;
   overflow: hidden;
 }
+
+/* ==========================================================================
+   Game Screens
+   ========================================================================== */
+/* Common screen properties */
+#start-screen,
+#game-screen,
+#end-screen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #2a2a3e;
+  border-radius: 4px;
+  width: 80ch;
+  line-height: 1;
+}
+
+/* Start Screen */
 #start-screen {
   text-align: center;
   font-size: 16px;
   opacity: 1;
-  background-color: #2a2a3e;
-  line-height: 1;
-  transition: opacity 0.5s ease;
+  height: 34em;
   margin-top: 9px;
-  width: 80ch;
-  height: 23em;
-  border-radius: 4px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  transition: opacity 0.5s ease;
 }
+
+/* Game Screen */
 #game-screen {
   display: none;
   white-space: pre;
   font-size: 16px;
-  line-height: 1;
-  background-color: #2a2a3e;
+  height: 35em;
   padding: 0px;
-  border-radius: 4px;
-  width: 80ch;
-  height: 40ch;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
+
+/* End Screen */
+#end-screen {
+  white-space: pre;
+  display: none;
+  text-align: center;
+  height: 34em;
+  margin-top: 9px;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Score Display Components
+   ========================================================================== */
+
+/* Champ */
 #high-score-display {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 10px;
+  display: none;
+  position: static;
+  margin-top: -540px;
+  margin-left: 530px;
+  font-size: 16px;
   color: var(--ctp-text);
   z-index: 1000;
+}
+
+#display-high-score {
+  color: var(--ctp-mauve);
+  display: table;
+}
+
+#display-high-score > * {
+  display: table-cell;
+  position: static;
+  padding: 0px 10px;
+  text-align: left;
+  white-space: nowrap;
 }
 
 #leaderboard {
@@ -83,40 +128,42 @@ body {
   top: 10%;
   left: 40%;
 }
-#score-hider {
-  display: none;
-}
+
 #scores {
   font-family: monospace;
   white-space: pre;
 }
+
+#score-hider {
+  display: none;
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
 .blink {
   animation: blink 1s infinite;
 }
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
-  }
-  100% {
-    opacity: 1;
-  }
-}
 
 @keyframes blink {
-  50% {
-    opacity: 0;
-  }
+  50% { opacity: 0; }
 }
-/* New animation styles for the start screen */
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+/* Start Screen Animations */
 .title-animation {
   text-align: center;
-  font-size: 8px;
+  font-size: 10px;
+  margin-left: -60px;
   font-family: "Courier New", monospace;
   animation: titleFadeIn 2s ease-in-out;
-  margin-bottom: 5px;
+  margin-bottom: 15px;
+  padding-top: 30px;
 }
 
 @keyframes titleFadeIn {
@@ -130,36 +177,12 @@ body {
   }
 }
 
-.menu-options {
-  text-align: center;
-  font-size: 16px;
-  margin-bottom: 5px;
-  animation: fadeIn 2s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.menu-options span.key {
-  color: var(--ctp-mauve);
-}
-
-.menu-options span.label {
-  color: var(--ctp-lavender);
-}
-
 .graphics-animation {
   text-align: center;
-  font-size: 8px;
+  font-size: 10px;
   font-family: "Courier New", monospace;
   animation: graphicsSlideIn 2s ease-in-out;
-  margin-bottom: 5px;
+  margin-bottom: 45px;
 }
 
 @keyframes graphicsSlideIn {
@@ -173,6 +196,29 @@ body {
   }
 }
 
+/* ==========================================================================
+   Menu and UI Components
+   ========================================================================== */
+.menu-options {
+  text-align: center;
+  font-size: 20px;
+  margin-bottom: 39px;
+  animation: fadeIn 2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.menu-options span.key {
+  color: var(--ctp-mauve);
+}
+
+.menu-options span.label {
+  color: var(--ctp-lavender);
+}
+
 .play-prompt {
   display: block;
   position: absolute;
@@ -181,37 +227,22 @@ body {
   left: 37%;
 }
 
-#end-screen {
-  display: none;
-  text-align: left;
-  background-color: #2a2a3e;
-  line-height: 1;
-  transition: opacity 0.5s ease;
-  margin-top: 9px;
-  width: 80ch;
-  height: 23em;
-  border-radius: 4px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding-left: 10px;
-  box-sizing: border-box;  /* This ensures padding doesn't affect overall width */
-}
+/* ==========================================================================
+   Form Elements
+   ========================================================================== */
 #player-credentials {
-  padding-left: 10px;
   outline: none;
   border: none;
   background: transparent;
   color: var(--ctp-text);
-  font-family: "Courier New", monospace;
 }
+
 #end-screen h2 {
-  font-size: 24px;
-  margin-top: 70px;
+  font-size: 14px;
   font-weight: normal;
+  margin-top: -30px;
   animation: blink 1s infinite;
-  text-align: left;
+  text-align: center;
   color: var(--ctp-red);
 }
 
@@ -219,29 +250,51 @@ body {
   background-color: var(--ctp-bg);
   color: var(--ctp-text);
   padding: 5px;
-  margin: 10px 0 10px 0;
-  border: 0px;
+  margin: 10px 0;
+  border: 0;
   font-family: "Courier New", monospace;
   width: 200px;
 }
 
-#save-score-section {
-  text-align: left;
-  margin: 20px 0;
-}
 
-#end-screen button {
-  background-color: var(--ctp-base);
+
+/* ==========================================================================
+   Modal and Popup Components
+   ========================================================================== */
+.modal {
+  display: none;
+  text-align: center;
+  background-color: #2a2a3e;
   color: var(--ctp-text);
   font-family: "Courier New", monospace;
-  border: 0px;
-  padding: 5px 10px;
-  cursor: pointer;
-  margin: 5px 5px 5px 0;
+  padding: 0;
+  position: absolute;
+  height: 240px;
+  width: 350px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -20%);
+  border-radius: 5px;
+  z-index: 1001;
 }
 
-#end-screen button:hover {
-  background-color: var(--ctp-player);
+#modal-scores-content {
+  max-height: 60vh;
+  overflow-y: auto;
+  text-align: left;
+  font-size: 16px;
+  padding-right: 10px;
+}
+
+#scores-popup {
+  display: none;
+  position: absolute;
+  margin-top: -20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(30%, -10%);
+  font-size: 20px;
+  text-align: left;
 }
 
 #notification {
@@ -259,49 +312,9 @@ body {
   z-index: 1000;
 }
 
-.modal {
-  display: none;
-  text-align: center;
-  background-color: #2a2a3e;
-  color: var(--ctp-text);
-  font-family: "Courier New", monospace;
-  padding: 0px;
-  position: absolute;
-  height: 240px;
-  width: 290px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -20%);
-  border-radius: 5px;
-  z-index: 1001;
-}
-
-/* Make the scores area inside the scores modal scrollable */
-#modal-scores-content {
-  max-height: 60vh;
-  overflow-y: auto;
-  text-align: left;
-  font-size: 14px;
-  padding-right: 10px;
-}
-
-/* NEW: Popup for end game scores at bottom center */
-#scores-popup {
-  display: none;
-  position: absolute;
-  margin-left: -320px;
-  margin-top: -110px;
-  background-color: rgba(30, 30, 46, 0.9);
-  color: var(--ctp-text);
-  font-family: "Courier New", monospace;
-  border-radius: 5px;
-  padding: 20px;
-  max-height: auto;
-  overflow-y: auto;
-  z-index: 1002;
-}
-
-/* Update game status text */
+/* ==========================================================================
+   Status and Stats Display
+   ========================================================================== */
 .status-text {
   color: var(--ctp-yellow);
   position: absolute;
@@ -309,12 +322,10 @@ body {
   width: 100%;
 }
 
-/* Update modal headers */
 .modal h2 {
   color: var(--ctp-mauve);
 }
 
-/* Update stats display */
 #modal-stats .stat-label {
   color: var(--ctp-sapphire);
 }
@@ -323,31 +334,28 @@ body {
   color: var(--ctp-peach);
 }
 
-/* Update game over screen */
+/* Your Score: */
 #end-screen .score-display {
   color: var(--ctp-green);
+  font-size: 28px;
+  margin-top: -10px;
 }
 
 #end-screen .key-prompt {
   color: var(--ctp-mauve);
+  font-size: 18px;
+  display: inline-block;
+  margin-right: 30px;
+  margin-top: 30px;
 }
 
-#high-score-display {
-  position: static;
-  margin-top: -371px;
-  margin-left: 540px;
-  font-size: 16px;
-}
-
-#display-high-score {
-  color: var(--ctp-mauve);
-  display: table;
-}
-
-#display-high-score > * {
-  display: table-cell;
-  position: static;
-  padding: 0px 10px;
+#save-score-section {
   text-align: left;
-  white-space: nowrap;
+  margin-top: -10px;
+  margin-left: -20px;
+}
+
+/* END SCREEN CREDENTIALS */
+#enter-user {
+  margin-left: 100px;
 }

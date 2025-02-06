@@ -870,7 +870,14 @@ function saveScore() {
     })
     .catch((error) => {
       console.error("Error saving score:", error);
-      showNotification(error.message || "Failed to save score. Please try again.");
+      // Extract error message from the response if available
+      if (error.response) {
+        error.response.json().then(data => {
+          showNotification(data.error || "Failed to save score. Please try again.");
+        });
+      } else {
+        showNotification(error.message || "Failed to save score. Please try again.");
+      }
     });
 }
 

@@ -57,7 +57,7 @@ const BOSS_TYPES = {
     health: 15,
     speed: 0.1,
     points: 20,
-    shootInterval: 2000,
+    shootInterval: 3000,
     ability: "shoot"
   },
   SPAWNER: {

@@ -1,5 +1,5 @@
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://asciitron.lkly.net",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-API-Key",
   "Access-Control-Allow-Credentials": "true",
@@ -27,6 +27,7 @@ function generateHash(input, username) {
 class RateLimiter {
   constructor() {
     this.requests = new Map();
+    this.scoreSubmissions = new Map();
   }
 
   isRateLimited(ip) {
@@ -46,9 +47,20 @@ class RateLimiter {
     }
     return false;
   }
+
+  checkScoreSubmission(ip) {
+    const now = Date.now();
+    const lastSubmission = this.scoreSubmissions.get(ip);
+    if (lastSubmission && now - lastSubmission < 60000) { // Minimum 60s between games
+      return false;
+    }
+    this.scoreSubmissions.set(ip, now);
+    return true;
+  }
 }
 
 const rateLimiter = new RateLimiter();
+const suspiciousIPs = new Set();
 
 async function handleRequest(request, env) {
   if (request.method === "OPTIONS") {
@@ -79,9 +91,33 @@ async function handleRequest(request, env) {
     }
 
     if (request.method === "POST" && url.pathname === "/scores") {
-      const { score, name } = await request.json();
+      const { score, name, waveCount } = await request.json();
       if (typeof score !== "number" || score < 0) {
         throw new Error("Invalid score");
+      }
+
+      // Validate time between score submissions
+      if (!rateLimiter.checkScoreSubmission(clientIp)) {
+        throw new Error("Please wait before submitting another score");
+      }
+
+      // Validate wave count and score correlation
+      // Regular waves: 10 enemies * 10 points = 100 points per wave
+      // Boss waves (every 5th wave): 20 additional points
+      const expectedMaxScore = (waveCount * 100) + (Math.floor(waveCount / 5) * 20);
+      if (score > expectedMaxScore) {
+        throw new Error("Score exceeds possible amount for waves completed");
+      }
+      
+      // Validate score based on game mechanics
+      // Maximum possible score calculation:
+      // Assuming maximum 100 waves (very generous)
+      // Regular waves (95): 95 waves * 10 enemies * 10 points = 9,500
+      // Boss waves (5): 5 bosses * 20 points = 100
+      // Total maximum possible: 9,600
+      const MAX_POSSIBLE_SCORE = 9600;
+      if (score > MAX_POSSIBLE_SCORE) {
+        throw new Error("Invalid score: Exceeds maximum possible score");
       }
       if (!name || typeof name !== "string") {
         throw new Error("Invalid player name");
@@ -101,10 +137,24 @@ async function handleRequest(request, env) {
         timestamp: Date.now(),
       });
 
+      // Track suspicious activity
+      const userScores = scores.filter(s => s.name === username);
+      if (userScores.length > 0) {
+        const averageScore = userScores.reduce((acc, curr) => acc + curr.score, 0) / userScores.length;
+        if (score > averageScore * 3) {
+          suspiciousIPs.add(clientIp);
+        }
+      }
+
       await env.SCORES.put(
         "highscores",
         JSON.stringify(scores.sort((a, b) => b.score - a.score).slice(0, 100))
       );
+
+      // Store suspicious IPs for monitoring
+      if (suspiciousIPs.size > 0) {
+        await env.SCORES.put("suspicious_ips", JSON.stringify(Array.from(suspiciousIPs)));
+      }
 
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

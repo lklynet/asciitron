@@ -61,6 +61,20 @@ class RateLimiter {
 
 const rateLimiter = new RateLimiter();
 const suspiciousIPs = new Set();
+let profanityList = null;
+
+async function fetchProfanityList() {
+  if (profanityList) return profanityList;
+  try {
+    const response = await fetch('https://raw.githubusercontent.com/coffee-and-fun/google-profanity-words/refs/heads/main/data/en.txt');
+    const text = await response.text();
+    profanityList = new Set(text.split('\n').filter(word => word.trim()));
+    return profanityList;
+  } catch (error) {
+    console.error('Error fetching profanity list:', error);
+    return new Set(); // Return empty set as fallback
+  }
+}
 
 async function handleRequest(request, env) {
   if (request.method === "OPTIONS") {
@@ -126,6 +140,13 @@ async function handleRequest(request, env) {
       const username = name.split("#")[0];
       if (username.length > 12) {
         throw new Error("Username must be 12 characters or less");
+      }
+
+      // Check for profanity in username
+      const profanityWords = await fetchProfanityList();
+      const lowercaseUsername = username.toLowerCase();
+      if (Array.from(profanityWords).some(word => lowercaseUsername.includes(word.toLowerCase()))) {
+        throw new Error("Username contains inappropriate content");
       }
 
       const scores = (await env.SCORES.get("highscores", "json")) || [];

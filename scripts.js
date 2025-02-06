@@ -130,7 +130,8 @@ function trackGameEvent(eventName, data = {}) {
       plausible('Game Started', eventProps);
       break;
     case 'gameEnd':
-      plausible('Game Ended', {
+      plausible('Game Ended', eventProps);
+      plausible('Score', {
         props: {
           ...data,
           finalScore: score,
@@ -157,6 +158,7 @@ function trackGameEvent(eventName, data = {}) {
           score: score
         }
       });
+      plausible('Wave Progress', eventProps);
       break;
     case 'enemyKilled':
       plausible('Enemy Killed', {
@@ -166,6 +168,12 @@ function trackGameEvent(eventName, data = {}) {
           isBoss: data.isBoss || false,
           scoreIncrease: data.isBoss ? 20 : 10,
           score: score
+        }
+      });
+      plausible('Score Update', {
+        props: {
+          score: score,
+          increment: data.isBoss ? 20 : 10
         }
       });
       break;

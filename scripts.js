@@ -95,6 +95,8 @@ function startGame() {
   document.getElementById("high-score-display").style.display = "block";
   initGame();
   gameLoop = setInterval(updateGame, 1000 / 30);
+  // Dispatch game start event for analytics
+  document.dispatchEvent(new Event('gameStart'));
 }
 
 /**
@@ -251,6 +253,8 @@ function updateGame() {
     enemySpeed = Math.min(0.6, enemySpeed * 1.08);
     waveStartTime = Date.now();
     stalkers = []; // Reset stalkers for new wave
+    // Dispatch wave completed event for analytics
+    document.dispatchEvent(new Event('waveCompleted'));
     
     // Check if it's a boss wave (every 5 waves)
     const isBossWave = wave % 5 === 0;
@@ -323,6 +327,8 @@ function updateGame() {
         if (enemies[i].health <= 0) {
           score += enemies[i].isBoss ? enemies[i].points : 10;
           enemies.splice(i, 1);
+          // Dispatch enemy killed event for analytics
+          document.dispatchEvent(new Event('enemyKilled'));
           break;
         }
       }

@@ -293,7 +293,8 @@ body {
   text-align: center;
   font-size: 10px;
   font-family: "Courier New", monospace;
-  animation: graphicsSlideIn 2s ease-in-out;
+  animation: graphicsSlideIn 2s ease-in-out, hover 4s ease-in-out infinite;
+  animation-delay: 0s, 2s;
   margin-bottom: 45px;
 }
 
@@ -306,6 +307,11 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes hover {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 /* ==========================================================================

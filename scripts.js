@@ -849,7 +849,18 @@ function saveScore() {
         document.getElementById("player-credentials").value
       );
       getLeaderboard();
-      showNotification("Score saved!");
+      
+      // Show ranking position notification
+      let rankingMessage;
+      if (result.position > 100) {
+        rankingMessage = "Try Again!";
+      } else if (result.position <= 10) {
+        rankingMessage = `Top 10! (Rank ${result.position})`;
+      } else {
+        rankingMessage = `Top ${result.position}!`;
+      }
+      showNotification(rankingMessage);
+      
       // Update the save text and disable the save functionality
       const saveText = document.getElementById("save-score-text");
       saveText.textContent = "[V] Score Saved!";

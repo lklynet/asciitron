@@ -177,7 +177,15 @@ async function handleRequest(request, env) {
         await env.SCORES.put("suspicious_ips", JSON.stringify(Array.from(suspiciousIPs)));
       }
 
-      return new Response(JSON.stringify({ success: true }), {
+      // Calculate player's ranking position
+      const sortedScores = scores.sort((a, b) => b.score - a.score);
+      const playerPosition = sortedScores.findIndex(s => s.name === username && s.score === score) + 1;
+      
+      return new Response(JSON.stringify({ 
+        success: true,
+        position: playerPosition,
+        totalPlayers: sortedScores.length
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }

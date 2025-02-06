@@ -461,6 +461,7 @@ body {
 .status-text {
   color: var(--ctp-yellow);
   position: absolute;
+  margin-left: 10px;
   background-color: var(--ctp-bg);
   width: 100%;
 }
@@ -494,7 +495,7 @@ body {
 
 #save-score-section {
   text-align: left;
-  margin-top: -10px;
+  margin-top: 30px;
   margin-left: -20px;
 }
 

@@ -1,5 +1,8 @@
 // Plausible Analytics Event Tracking
 
+// Initialize Plausible function
+window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) };
+
 class GameAnalytics {
     constructor() {
         this.gameStartTime = null;
@@ -44,8 +47,10 @@ class GameAnalytics {
         this.isGameActive = true;
         this.resetMetrics();
 
-        // Track game start event
-        plausible('Game Started');
+        // Track game start event with callback
+        plausible('Game Started', {
+            callback: () => console.log('Game start event tracked')
+        });
     }
 
     onGameEnd() {
@@ -54,11 +59,26 @@ class GameAnalytics {
         // Calculate time played in minutes
         const timePlayed = Math.round((Date.now() - this.gameStartTime) / 60000);
 
-        // Track final metrics
-        plausible('Time Played', { props: { minutes: timePlayed } });
-        plausible('Waves Completed', { props: { count: this.wavesCompleted } });
-        plausible('Shots Fired', { props: { count: this.shotsFired } });
-        plausible('Enemies Killed', { props: { count: this.enemiesKilled } });
+        // Track final metrics with proper event names and properties
+        plausible('Time Played', {
+            props: { minutes: timePlayed },
+            callback: () => console.log('Time played event tracked')
+        });
+        
+        plausible('Waves Completed', {
+            props: { count: this.wavesCompleted },
+            callback: () => console.log('Waves completed event tracked')
+        });
+        
+        plausible('Shots Fired', {
+            props: { count: this.shotsFired },
+            callback: () => console.log('Shots fired event tracked')
+        });
+        
+        plausible('Enemies Killed', {
+            props: { count: this.enemiesKilled },
+            callback: () => console.log('Enemies killed event tracked')
+        });
 
         this.isGameActive = false;
     }

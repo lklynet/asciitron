@@ -140,13 +140,34 @@ function trackGameEvent(eventName, data = {}) {
       });
       break;
     case 'shotFired':
-      plausible('Shot Fired', eventProps);
+      plausible('Shot Fired', {
+        props: {
+          ...data,
+          totalShots: shotsFired,
+          playerPosition: { x: player.x, y: player.y }
+        }
+      });
       break;
     case 'waveCompleted':
-      plausible('Wave Completed', eventProps);
+      plausible('Wave Completed', {
+        props: {
+          ...data,
+          waveNumber: wave,
+          totalWaves: wavesCompleted,
+          score: score
+        }
+      });
       break;
     case 'enemyKilled':
-      plausible('Enemy Killed', eventProps);
+      plausible('Enemy Killed', {
+        props: {
+          ...data,
+          totalKills: enemiesKilled,
+          isBoss: data.isBoss || false,
+          scoreIncrease: data.isBoss ? 20 : 10,
+          score: score
+        }
+      });
       break;
   }
 }

@@ -225,7 +225,7 @@ body {
   display: none;
   position: static;
   margin-top: -540px;
-  margin-left: 530px;
+  margin-left: 520px;
   font-size: 16px;
   color: var(--ctp-text);
   z-index: 1000;

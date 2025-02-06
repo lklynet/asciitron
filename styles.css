@@ -49,24 +49,56 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(
-    circle at center,
-    transparent 100%,
-    rgba(0, 0, 0, .01) 100%
-  );
+  background: 
+    radial-gradient(
+      circle at center,
+      transparent 100%,
+      rgba(0, 0, 0, .02) 100%
+    ),
+    linear-gradient(90deg, 
+      rgba(255, 0, 0, 0.08), 
+      rgba(0, 255, 0, 0.04), 
+      rgba(0, 0, 255, 0.08)
+    );
+  background-size: 100% 100%, 3px 100%;
   pointer-events: none;
+  animation: flicker 0.3s infinite;
+}
+
+@keyframes flicker {
+  0% { opacity: 0.98; }
+  5% { opacity: 0.97; }
+  10% { opacity: 0.96; }
+  15% { opacity: 0.98; }
+  20% { opacity: 0.95; }
+  25% { opacity: 0.97; }
+  30% { opacity: 0.98; }
+  35% { opacity: 0.96; }
+  40% { opacity: 0.97; }
+  45% { opacity: 0.96; }
+  50% { opacity: 0.98; }
+  55% { opacity: 0.96; }
+  60% { opacity: 0.97; }
+  65% { opacity: 0.96; }
+  70% { opacity: 0.98; }
+  75% { opacity: 0.96; }
+  80% { opacity: 0.97; }
+  85% { opacity: 0.96; }
+  90% { opacity: 0.98; }
+  95% { opacity: 0.96; }
+  100% { opacity: 0.97; }
 }
 
 html { 
-  animation-duration: 0.03s;
+  animation-duration: 0.05s;
   animation-name: textflicker;
   animation-iteration-count: infinite;
   animation-direction: alternate;
 }
 
 @keyframes textflicker {
-  from { text-shadow: 0.5px 0 0 #ea36af, -1px 0 0 #75fa69, 0 0 2px currentColor, 0 0 4px rgba(205, 214, 244, 0.2); }
-  to { text-shadow: 1px 0.2px 1px #ea36af, -0.5px -0.2px 1px #75fa69, 0 0 2px currentColor, 0 0 4px rgba(205, 214, 244, 0.2); }
+  from { text-shadow: 1px 0 0 #ea36af, -1.5px 0 0 #75fa69, 0 0 3px currentColor, 0 0 6px rgba(205, 214, 244, 0.3); }
+  to { text-shadow: 1.5px 0.3px 2px #ea36af, -1px -0.3px 2px #75fa69, 0 0 3px currentColor, 0 0 6px rgba(205, 214, 244, 0.3); }
 }
 
 @keyframes scanlines {

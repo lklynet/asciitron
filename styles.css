@@ -359,13 +359,27 @@ body {
 }
 
 #end-screen input {
-  background-color: var(--ctp-bg);
-  color: var(--ctp-text);
   padding: 5px;
   margin: 10px 0;
-  border: 0;
+  border: 2px solid var(--ctp-mauve);
+  border-radius: 3px;
+  background: transparent;
   font-family: "Courier New", monospace;
-  width: 200px;
+  font-size: 32px;
+  font-weight: 900;
+  text-align: left;
+  width: 300px;
+  color: var(--ctp-yellow);
+  text-transform: uppercase;
+  text-shadow: 0 0 10px var(--ctp-mauve);
+  animation: textflicker 0.05s infinite alternate;
+  caret-color: var(--ctp-yellow);
+  caret-shape: block;
+}
+
+#end-screen input:focus {
+  outline: none;
+  border-color: var(--ctp-sapphire);
 }
 
 

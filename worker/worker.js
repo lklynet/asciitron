@@ -51,7 +51,7 @@ class RateLimiter {
   checkScoreSubmission(ip) {
     const now = Date.now();
     const lastSubmission = this.scoreSubmissions.get(ip);
-    if (lastSubmission && now - lastSubmission < 60000) { // Minimum 60s between games
+    if (lastSubmission && now - lastSubmission < 15000) { // Minimum 60s between games
       return false;
     }
     this.scoreSubmissions.set(ip, now);

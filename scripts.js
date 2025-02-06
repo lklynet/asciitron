@@ -83,6 +83,12 @@ const BOSS_TYPES = {
  * - Initializes game state
  * - Starts game loop
  */
+// Analytics tracking variables
+let gameStartTime = 0;
+let shotsFired = 0;
+let enemiesKilled = 0;
+let wavesCompleted = 0;
+
 function startGame() {
   gameState = "playing";
   // Close all modal windows
@@ -95,8 +101,54 @@ function startGame() {
   document.getElementById("high-score-display").style.display = "block";
   initGame();
   gameLoop = setInterval(updateGame, 1000 / 30);
-  // Dispatch game start event for analytics
-  document.dispatchEvent(new Event('gameStart'));
+  
+  // Reset analytics tracking
+  gameStartTime = Date.now();
+  shotsFired = 0;
+  enemiesKilled = 0;
+  wavesCompleted = 0;
+  
+  // Track game start
+  trackGameEvent('gameStart', {
+    timestamp: gameStartTime
+  });
+}
+
+// Analytics tracking function
+function trackGameEvent(eventName, data = {}) {
+  // Track events using Plausible Analytics
+  const eventProps = {
+    props: {
+      ...data,
+      gameId: gameStartTime
+    }
+  };
+
+  // Map game events to Plausible goals
+  switch(eventName) {
+    case 'gameStart':
+      plausible('Game Started', eventProps);
+      break;
+    case 'gameEnd':
+      plausible('Game Ended', {
+        props: {
+          ...data,
+          finalScore: score,
+          wavesCompleted: wave,
+          timePlayedSeconds: Math.floor((Date.now() - gameStartTime) / 1000)
+        }
+      });
+      break;
+    case 'shotFired':
+      plausible('Shot Fired', eventProps);
+      break;
+    case 'waveCompleted':
+      plausible('Wave Completed', eventProps);
+      break;
+    case 'enemyKilled':
+      plausible('Enemy Killed', eventProps);
+      break;
+  }
 }
 
 /**
@@ -246,15 +298,40 @@ function updateGame() {
     }
   }
 
+  // Update shoot function to track shots fired
+  function shoot() {
+    if (gameState !== "playing") return;
+    
+    bullets.push({
+      x: player.x,
+      y: player.y,
+      dx: player.shootDx,
+      dy: player.shootDy,
+      char: "*"
+    });
+    
+    shotsFired++;
+    trackGameEvent('shotFired', {
+      totalShots: shotsFired,
+      playerPosition: { x: player.x, y: player.y }
+    });
+  }
+
   // Update enemies and check for wave completion
   if (enemies.length === 0) {
     wave++;
+    wavesCompleted++;
     spawnRate = Math.min(0.08, spawnRate * 1.15);
     enemySpeed = Math.min(0.6, enemySpeed * 1.08);
     waveStartTime = Date.now();
     stalkers = []; // Reset stalkers for new wave
-    // Dispatch wave completed event for analytics
-    document.dispatchEvent(new Event('waveCompleted'));
+    
+    // Track wave completion
+    trackGameEvent('waveCompleted', {
+      waveNumber: wave,
+      totalWaves: wavesCompleted,
+      score: score
+    });
     
     // Check if it's a boss wave (every 5 waves)
     const isBossWave = wave % 5 === 0;
@@ -327,8 +404,14 @@ function updateGame() {
         if (enemies[i].health <= 0) {
           score += enemies[i].isBoss ? enemies[i].points : 10;
           enemies.splice(i, 1);
-          // Dispatch enemy killed event for analytics
-          document.dispatchEvent(new Event('enemyKilled'));
+          enemiesKilled++;
+          
+          // Track enemy killed
+          trackGameEvent('enemyKilled', {
+            totalKills: enemiesKilled,
+            isBoss: enemies[i]?.isBoss || false,
+            score: score
+          });
           break;
         }
       }

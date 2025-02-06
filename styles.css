@@ -384,6 +384,26 @@ body {
 
 
 
+@keyframes bullet-animation {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-37ch);
+    opacity: 1;
+  }
+}
+
+.bullet {
+  position: absolute;
+  color: var(--ctp-pink);
+  animation: bullet-animation 1s linear;
+  left: 50%;
+  margin-left: -27ch;
+  margin-top: -18em;
+}
+
 /* ==========================================================================
    Modal and Popup Components
    ========================================================================== */

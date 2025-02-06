@@ -497,6 +497,8 @@ function drawGame() {
 function endGame() {
   gameState = "end";
   clearInterval(gameLoop);
+  // Dispatch game end event for analytics
+  document.dispatchEvent(new Event('gameEnd'));
   // Update high scores in localStorage
   const highScore = parseInt(localStorage.getItem("asciitron-highscore")) || 0;
   const highWave = parseInt(localStorage.getItem("asciitron-highwave")) || 0;
@@ -633,15 +635,19 @@ document.addEventListener("keydown", (e) => {
       // Shooting controls (Arrow keys)
       case "ArrowUp":
         bullets.push({ x: player.x, y: player.y, dx: 0, dy: -1 });
+        document.dispatchEvent(new Event('shotFired'));
         break;
       case "ArrowDown":
         bullets.push({ x: player.x, y: player.y, dx: 0, dy: 1 });
+        document.dispatchEvent(new Event('shotFired'));
         break;
       case "ArrowLeft":
         bullets.push({ x: player.x, y: player.y, dx: -1, dy: 0 });
+        document.dispatchEvent(new Event('shotFired'));
         break;
       case "ArrowRight":
         bullets.push({ x: player.x, y: player.y, dx: 1, dy: 0 });
+        document.dispatchEvent(new Event('shotFired'));
         break;
     }
   }

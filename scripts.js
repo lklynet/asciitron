@@ -892,15 +892,3 @@ function updateScoresPopup(scores) {
   }
 }
 
-function createBullet() {
-  const bullet = document.createElement('div');
-  bullet.className = 'bullet';
-  bullet.textContent = '•';
-  document.querySelector('.graphics-animation').appendChild(bullet);
-  
-  bullet.addEventListener('animationend', () => {
-    bullet.remove();
-  });
-}
-
-setInterval(createBullet, 2000);

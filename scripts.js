@@ -696,7 +696,7 @@ async function submitScore(score) {
     );
     const result = await response.json();
     if (!result.success) {
-      throw new Error("Failed to submit score");
+      throw new Error(result.error || "Failed to submit score");
     }
     await getLeaderboard(); // Refresh leaderboard after submission
   } catch (error) {

@@ -859,7 +859,7 @@ function saveScore() {
     })
     .catch((error) => {
       console.error("Error saving score:", error);
-      showNotification("Failed to save score. Please try again.");
+      showNotification(error.message || "Failed to save score. Please try again.");
     });
 }
 

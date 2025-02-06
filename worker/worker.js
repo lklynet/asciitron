@@ -51,7 +51,7 @@ class RateLimiter {
   checkScoreSubmission(ip) {
     const now = Date.now();
     const lastSubmission = this.scoreSubmissions.get(ip);
-    if (lastSubmission && now - lastSubmission < 15000) { // Minimum 60s between games
+    if (lastSubmission && now - lastSubmission < 1000) { // Minimum 60s between games
       return false;
     }
     this.scoreSubmissions.set(ip, now);
@@ -146,7 +146,7 @@ async function handleRequest(request, env) {
       const profanityWords = await fetchProfanityList();
       const lowercaseUsername = username.toLowerCase();
       if (Array.from(profanityWords).some(word => lowercaseUsername.includes(word.toLowerCase()))) {
-        throw new Error("Username contains inappropriate content");
+        throw new Error("Username rejected: Contains inappropriate language");
       }
 
       const scores = (await env.SCORES.get("highscores", "json")) || [];

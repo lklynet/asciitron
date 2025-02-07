@@ -205,6 +205,10 @@ body {
   padding: 0px;
 }
 
+#game-screen.playing {
+  cursor: none;
+}
+
 /* End Screen */
 #end-screen {
   white-space: pre;

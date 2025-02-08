@@ -342,32 +342,36 @@ function updateGame() {
         bullets.splice(i, 1);
         
         if (mines[j].health <= 0) {
-          // Check for nearby enemies and remove them
+          const mineX = mines[j].x;  // Store coordinates before splicing
+          const mineY = mines[j].y;
+          mines.splice(j, 1);
+          
+          // Check for nearby enemies using stored coordinates
           for (let k = enemies.length - 1; k >= 0; k--) {
-            if (Math.abs(enemies[k].x - mines[j].x) <= 3 && Math.abs(enemies[k].y - mines[j].y) <= 3) {
+            if (Math.abs(enemies[k].x - mineX) <= 3 && Math.abs(enemies[k].y - mineY) <= 3) {
               score += enemies[k].isBoss ? enemies[k].points : 10;
               enemies.splice(k, 1);
             }
           }
-          mines.splice(j, 1);
         }
         break;
       }
     }
 
     // Add collision check for mine-type enemy bullets
-    if (bullets[i]) {  // Make sure bullet still exists after mine checks
+    if (bullets[i]) {
       for (let j = enemyBullets.length - 1; j >= 0; j--) {
         if (enemyBullets[j].char === "o" && 
             Math.abs(bullets[i].x - enemyBullets[j].x) < 1 && 
             Math.abs(bullets[i].y - enemyBullets[j].y) < 1) {
+          const mineX = enemyBullets[j].x;  // Store coordinates before splicing
+          const mineY = enemyBullets[j].y;
           bullets.splice(i, 1);
           enemyBullets.splice(j, 1);
           
-          // Check for nearby enemies and remove them
+          // Check for nearby enemies using stored coordinates
           for (let k = enemies.length - 1; k >= 0; k--) {
-            if (Math.abs(enemies[k].x - enemyBullets[j].x) <= 3 && 
-                Math.abs(enemies[k].y - enemyBullets[j].y) <= 3) {
+            if (Math.abs(enemies[k].x - mineX) <= 3 && Math.abs(enemies[k].y - mineY) <= 3) {
               score += enemies[k].isBoss ? enemies[k].points : 10;
               enemies.splice(k, 1);
             }

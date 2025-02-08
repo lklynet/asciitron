@@ -76,7 +76,7 @@ const BOSS_TYPES = {
     char: "[]",
     health: 30,
     speed: 0.08,
-    points: 25,
+    points: 20,
     shieldInterval: 5000,
     shieldDuration: 2000,
     ability: "shield",
@@ -101,7 +101,7 @@ const BOSS_TYPES = {
     char: "OO",
     health: 28,
     speed: 0.06,
-    points: 30,
+    points: 20,
     aoeInterval: 7000,
     aoeBulletSpeed: 0.5,
     aoeBulletCount: 12,
@@ -193,7 +193,8 @@ function spawnMines() {
       mines.push({
         x: Math.random() * (gameWidth - 2) + 1,
         y: Math.random() * (gameHeight - 2) + 1,
-        char: 'o'
+        char: 'o',
+        health: 3
       });
     }
   }
@@ -331,6 +332,49 @@ function updateGame() {
       bullets[i].y >= gameHeight
     ) {
       bullets.splice(i, 1);
+      continue;
+    }
+
+    // Check collision with mines and mine-type bullets
+    for (let j = mines.length - 1; j >= 0; j--) {
+      if (Math.abs(bullets[i].x - mines[j].x) < 1 && Math.abs(bullets[i].y - mines[j].y) < 1) {
+        mines[j].health--;
+        bullets.splice(i, 1);
+        
+        if (mines[j].health <= 0) {
+          // Check for nearby enemies and remove them
+          for (let k = enemies.length - 1; k >= 0; k--) {
+            if (Math.abs(enemies[k].x - mines[j].x) <= 3 && Math.abs(enemies[k].y - mines[j].y) <= 3) {
+              score += enemies[k].isBoss ? enemies[k].points : 10;
+              enemies.splice(k, 1);
+            }
+          }
+          mines.splice(j, 1);
+        }
+        break;
+      }
+    }
+
+    // Add collision check for mine-type enemy bullets
+    if (bullets[i]) {  // Make sure bullet still exists after mine checks
+      for (let j = enemyBullets.length - 1; j >= 0; j--) {
+        if (enemyBullets[j].char === "o" && 
+            Math.abs(bullets[i].x - enemyBullets[j].x) < 1 && 
+            Math.abs(bullets[i].y - enemyBullets[j].y) < 1) {
+          bullets.splice(i, 1);
+          enemyBullets.splice(j, 1);
+          
+          // Check for nearby enemies and remove them
+          for (let k = enemies.length - 1; k >= 0; k--) {
+            if (Math.abs(enemies[k].x - enemyBullets[j].x) <= 3 && 
+                Math.abs(enemies[k].y - enemyBullets[j].y) <= 3) {
+              score += enemies[k].isBoss ? enemies[k].points : 10;
+              enemies.splice(k, 1);
+            }
+          }
+          break;
+        }
+      }
     }
   }
 

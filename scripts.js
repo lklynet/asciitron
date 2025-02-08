@@ -301,7 +301,7 @@ function updateGame() {
 
   // Check player collision with mines
   for (let i = mines.length - 1; i >= 0; i--) {
-    if (Math.abs(player.x - mines[i].x) < 1 && Math.abs(player.y - mines[i].y) < 1) {
+    if (Math.abs(player.x - mines[i].x) < 0.8 && Math.abs(player.y - mines[i].y) < 0.8) {
       endGame();
       return;
     }
@@ -349,8 +349,8 @@ function updateGame() {
     }
 
     if (
-      Math.abs(player.x - enemyBullets[i].x) < 1 &&
-      Math.abs(player.y - enemyBullets[i].y) < 1
+      Math.abs(player.x - enemyBullets[i].x) < 0.8 &&
+      Math.abs(player.y - enemyBullets[i].y) < 0.8
     ) {
       endGame();
       return;
@@ -425,7 +425,7 @@ function updateGame() {
     stalker.x += (dx / dist) * stalkerSpeed;
     stalker.y += (dy / dist) * stalkerSpeed;
 
-    if (Math.abs(player.x - stalker.x) < 1 && Math.abs(player.y - stalker.y) < 1) {
+    if (Math.abs(player.x - stalker.x) < 1 && Math.abs(player.y - stalker.y) < 0.8) {
       endGame();
       return;
     }
@@ -681,8 +681,8 @@ const shieldExplosionTime = Date.now();
 
     if (
       i >= 0 &&
-      Math.abs(player.x - enemies[i].x) < 1 &&
-      Math.abs(player.y - enemies[i].y) < 1
+      Math.abs(player.x - enemies[i].x) < 0.8 &&
+      Math.abs(player.y - enemies[i].y) < 0.8
     ) {
       endGame();
       return;

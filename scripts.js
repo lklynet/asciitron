@@ -155,7 +155,7 @@ function startGame() {
   document.getElementById("leaderboard").style.display = "block";
   document.getElementById("high-score-display").style.display = "block";
   initGame();
-  gameLoop = setInterval(updateGame, 1000 / 45);
+  gameLoop = setInterval(updateGame, 1000 / 30);
 }
 
 let mines = [];

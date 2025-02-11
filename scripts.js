@@ -143,6 +143,118 @@ let enemySpeed = initialEnemySpeed;
 let spawnRate = initialSpawnRate;    
 let stalkerSpeed = baseStalkerSpeed; 
 
+
+let audioContext;
+let backgroundMusicBuffer = null; // Store the decoded audio data
+let backgroundMusicSource = null;  // Keep track of the currently playing source
+
+try {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    loadBackgroundMusic(); // Load music on startup
+} catch (error) {
+    console.error("Web Audio API is not supported in this browser:", error);
+}
+
+async function loadBackgroundMusic() {
+    if (!audioContext) return;
+
+    try {
+        // You can replace this with any URL that points to an MP3, OGG, or WAV file
+        const response = await fetch("https://www.chiptape.com/chiptape/BDC86.ogg"); // Example from chiptape.com
+        const arrayBuffer = await response.arrayBuffer();
+        backgroundMusicBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    } catch (error) {
+        console.error("Error loading or decoding background music:", error);
+        //  Consider a fallback: no music, but the game still works.
+    }
+}
+
+function playBackgroundMusic() {
+  if (!audioContext || !backgroundMusicBuffer) return;
+    if (backgroundMusicSource) {
+        backgroundMusicSource.stop(); // Stop any existing music
+    }
+
+
+  backgroundMusicSource = audioContext.createBufferSource();
+  backgroundMusicSource.buffer = backgroundMusicBuffer;
+  backgroundMusicSource.loop = true; // Loop the music
+    const gainNode = audioContext.createGain(); //for volume
+    gainNode.gain.value = 0.2; // Adjust volume (0.0 to 1.0)
+    backgroundMusicSource.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  backgroundMusicSource.start();
+}
+
+function stopBackgroundMusic() {
+    if (backgroundMusicSource) {
+        backgroundMusicSource.stop();
+        backgroundMusicSource = null; // Reset the source
+    }
+}
+
+
+function playSound(frequency, duration, volume = 0.5, type = 'sine', detune = 0, callback) {
+    if (!audioContext) return;
+
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+    oscillator.detune.setValueAtTime(detune, audioContext.currentTime);
+
+    gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + duration);
+
+    if (callback) {
+        oscillator.onended = callback;
+    }
+}
+
+
+// More refined sound functions
+function playPlayerShootSound() {
+  playSound(240, 0.03, 0.3, 'sawtooth');     // Main impact
+  playSound(120, 0.1, 0.1, 'square', -50); // Add some "crunch"
+}
+
+function playEnemyHitSound() {
+    //  Short, percussive sound with a bit of noise.
+    playSound(440, 0.03, 0.3, 'triangle');     // Main impact
+    playSound(220, 0.1, 0.1, 'square', -50);  // Add some "crunch"
+}
+function playEnemyExplosionSound() {
+    playSound(110, 0.3, 0.8, 'sawtooth', -100);
+}
+
+function playPlayerDeathSound() {
+    playSound(55, 0.6, 1.0, 'sawtooth', -500);
+}
+
+function playStalkerSpawnSound() {
+    playSound(60, 2, 0.7, 'sawtooth', 50);
+}
+
+function playBossSpawnSound() {
+    playSound(40, 1.5, 1.0, 'sawtooth', 100, () => {
+        playSound(60, 1, 0.7, 'sine', -500);
+    });
+}
+function playBossDeathSound() { // ADD THIS FUNCTION
+	playSound(75, 0.8, 1.0, 'sawtooth', -300);
+}
+
+function playMineExplosionSound() {
+  playSound(220, 0.2, 0.8, 'square');
+}
+
 function startGame() {
   gameState = "playing";
 
@@ -260,6 +372,7 @@ function spawnEnemy(isBoss = false) {
     };
 
     enemies.push(boss);
+    playBossSpawnSound();
   } else {
     const enemyType = Math.random() < 0.33 ? "&" : Math.random() < 0.5 ? "%" : "#";
     let speedFactor = ENEMY_SPEED_FACTORS[enemyType] || baseEnemySpeedFactor; 
@@ -303,6 +416,7 @@ function updateGame() {
   // Check player collision with mines
   for (let i = mines.length - 1; i >= 0; i--) {
     if (Math.abs(player.x - mines[i].x) < 0.8 && Math.abs(player.y - mines[i].y) < 0.8) {
+      playPlayerDeathSound();
       endGame();
       return;
     }
@@ -340,6 +454,7 @@ function updateGame() {
       if (Math.abs(bullets[i].x - mines[j].x) < 1 && Math.abs(bullets[i].y - mines[j].y) < 1) {
         mines[j].health--;
         bullets.splice(i, 1);
+        playMineExplosionSound();
         
         if (mines[j].health <= 0) {
           const mineX = mines[j].x;  // Store coordinates before splicing
@@ -401,6 +516,7 @@ function updateGame() {
       Math.abs(player.y - enemyBullets[i].y) < 0.8
     ) {
       endGame();
+      playPlayerDeathSound();
       return;
     }
   }
@@ -464,6 +580,7 @@ function updateGame() {
     }
     stalkers.push({ x, y, char: "Ξ" });
     lastStalkerSpawn = currentTime;
+    playStalkerSpawnSound();
   }
 
   stalkers.forEach(stalker => {
@@ -474,6 +591,7 @@ function updateGame() {
     stalker.y += (dy / dist) * stalkerSpeed;
 
     if (Math.abs(player.x - stalker.x) < 1 && Math.abs(player.y - stalker.y) < 0.8) {
+      playPlayerDeathSound();
       endGame();
       return;
     }
@@ -498,6 +616,9 @@ function updateGame() {
       ) {
         enemies[i].health--;
         bullets.splice(j, 1);
+        playEnemyHitSound(); // Play hit sound *immediately* after impact
+
+        
         
         if (enemies[i].health <= 0) {
           if (enemies[i].isBoss && enemies[i].ability === "charge") {
@@ -826,6 +947,7 @@ function drawGame() {
 function endGame() {
   gameState = "end";
   clearInterval(gameLoop);
+  playPlayerDeathSound();
 
   const highScore = parseInt(localStorage.getItem("asciitron-highscore")) || 0;
   const highWave = parseInt(localStorage.getItem("asciitron-highwave")) || 0;
@@ -949,15 +1071,19 @@ document.addEventListener("keydown", (e) => {
 
         case "ArrowUp":
           bullets.push({ x: player.x, y: player.y, dx: 0, dy: -1 });
+          playPlayerShootSound(); // Add this line
           break;
         case "ArrowDown":
           bullets.push({ x: player.x, y: player.y, dx: 0, dy: 1 });
+          playPlayerShootSound(); // Add this line
           break;
         case "ArrowLeft":
           bullets.push({ x: player.x, y: player.y, dx: -1, dy: 0 });
+          playPlayerShootSound(); // Add this line
           break;
         case "ArrowRight":
           bullets.push({ x: player.x, y: player.y, dx: 1, dy: 0 });
+          playPlayerShootSound(); // Add this line
           break;
     }
   }

@@ -824,7 +824,6 @@ function drawGame() {
 }
 
 function endGame() {
-  audioDied.play();
   gameState = "end";
   clearInterval(gameLoop);
 
@@ -864,7 +863,6 @@ function endGame() {
 document.addEventListener("keydown", (e) => {
   if (gameState === "start") {
     if (e.code === "Space") {
-      audioStart.play();
       setTimeout(startGame, 100); 
       return;
     } else if (e.code === "KeyT") {
@@ -951,19 +949,15 @@ document.addEventListener("keydown", (e) => {
 
         case "ArrowUp":
           bullets.push({ x: player.x, y: player.y, dx: 0, dy: -1 });
-          audioShoot.play();
           break;
         case "ArrowDown":
           bullets.push({ x: player.x, y: player.y, dx: 0, dy: 1 });
-          audioShoot.play();
           break;
         case "ArrowLeft":
           bullets.push({ x: player.x, y: player.y, dx: -1, dy: 0 });
-          audioShoot.play();
           break;
         case "ArrowRight":
           bullets.push({ x: player.x, y: player.y, dx: 1, dy: 0 });
-          audioShoot.play();
           break;
     }
   }

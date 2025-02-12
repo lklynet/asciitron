@@ -145,54 +145,11 @@ let stalkerSpeed = baseStalkerSpeed;
 
 
 let audioContext;
-let backgroundMusicBuffer = null; // Store the decoded audio data
-let backgroundMusicSource = null;  // Keep track of the currently playing source
-
 try {
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    loadBackgroundMusic(); // Load music on startup
 } catch (error) {
     console.error("Web Audio API is not supported in this browser:", error);
 }
-
-async function loadBackgroundMusic() {
-    if (!audioContext) return;
-
-    try {
-        // You can replace this with any URL that points to an MP3, OGG, or WAV file
-        const response = await fetch("https://www.chiptape.com/chiptape/BDC86.ogg"); // Example from chiptape.com
-        const arrayBuffer = await response.arrayBuffer();
-        backgroundMusicBuffer = await audioContext.decodeAudioData(arrayBuffer);
-    } catch (error) {
-        console.error("Error loading or decoding background music:", error);
-        //  Consider a fallback: no music, but the game still works.
-    }
-}
-
-function playBackgroundMusic() {
-  if (!audioContext || !backgroundMusicBuffer) return;
-    if (backgroundMusicSource) {
-        backgroundMusicSource.stop(); // Stop any existing music
-    }
-
-
-  backgroundMusicSource = audioContext.createBufferSource();
-  backgroundMusicSource.buffer = backgroundMusicBuffer;
-  backgroundMusicSource.loop = true; // Loop the music
-    const gainNode = audioContext.createGain(); //for volume
-    gainNode.gain.value = 0.2; // Adjust volume (0.0 to 1.0)
-    backgroundMusicSource.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-  backgroundMusicSource.start();
-}
-
-function stopBackgroundMusic() {
-    if (backgroundMusicSource) {
-        backgroundMusicSource.stop();
-        backgroundMusicSource = null; // Reset the source
-    }
-}
-
 
 function playSound(frequency, duration, volume = 0.5, type = 'sine', detune = 0, callback) {
     if (!audioContext) return;

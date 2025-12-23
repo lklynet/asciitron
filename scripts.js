@@ -1002,8 +1002,11 @@ function endGame() {
   const totalScore =
     parseInt(localStorage.getItem("asciitron-total-score")) || 0;
 
+  let isNewHighScore = false;
+
   if (score > highScore) {
     localStorage.setItem("asciitron-highscore", score);
+    isNewHighScore = true;
   }
   if (wave > highWave) {
     localStorage.setItem("asciitron-highwave", wave);
@@ -1015,7 +1018,15 @@ function endGame() {
   document.getElementById("game-screen").style.display = "none";
   document.getElementById("game-screen").classList.remove("playing");
   document.getElementById("final-score").textContent = score;
-  document.getElementById("end-screen").style.display = "block";
+
+  const highScoreMsg = document.getElementById("new-high-score-message");
+  if (isNewHighScore) {
+    highScoreMsg.style.display = "block";
+  } else {
+    highScoreMsg.style.display = "none";
+  }
+
+  document.getElementById("end-screen").style.display = "flex";
 }
 
 document.addEventListener("keydown", (e) => {

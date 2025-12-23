@@ -1,5 +1,7 @@
 # ASCIItron 🕹️
 
+<img src="asset/screenshot.webp" alt="ASCIItron Gameplay" width="800">
+
 ASCIItron is a retro-style ASCII shooter game built with vanilla JavaScript. Navigate through waves of enemies, rack up high scores, and compete for the top spot on the global leaderboard.
 
 ## Game Mechanics
@@ -11,9 +13,9 @@ ASCIItron is a retro-style ASCII shooter game built with vanilla JavaScript. Nav
 
 ### Enemies
 Regular Enemies:
-- & (33% spawn rate)
-- % (17% spawn rate)
-- # (50% spawn rate)
+- '&' (33% spawn rate)
+- '%' (17% spawn rate)
+- '#' (50% spawn rate)
 
 Boss Types (every 5 waves):
 - Tank Boss ($$): Slow movement, drops mines
@@ -59,9 +61,9 @@ Enemy behavior:
 ## 🛠️ Technical Stack
 
 - **Frontend:** Vanilla JavaScript, HTML5, CSS3
-- **Backend:** Cloudflare Workers
-- **Database:** Cloudflare KV Storage
-- **Hosting:** Cloudflare Pages
+- **Backend:** Cloudflare Workers / Node.js (Self-hosted)
+- **Database:** Cloudflare KV Storage / JSON File (Self-hosted)
+- **Hosting:** Cloudflare Pages / Docker
 - **Design:** Catppuccin Mocha Color Scheme
 
 ## 🎯 Features
@@ -108,7 +110,36 @@ asciitron/
 2. Serve the files using a local HTTP server (e.g., `python -m http.server`)
 3. No build step required - edit and refresh
 
-## �� Security
+## 🐳 Self-Hosting
+
+You can host ASCIItron on your own server using Docker.
+
+### Using Docker Compose
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/lklynet/asciitron.git
+   cd asciitron
+   ```
+
+2. Start the container:
+   ```bash
+   docker-compose up -d
+   ```
+
+3. Access the game at `http://localhost:3000`.
+
+### Using Docker Image
+
+You can also run the pre-built image directly:
+
+```bash
+docker run -d -p 3000:3000 -v $(pwd)/data:/app/data ghcr.io/lklynet/asciitron:latest
+```
+
+The game data (scores) will be persisted in the `./data` directory.
+
+## 🔒 Security
 
 - Scores are saved using username#password format
 - Passwords are hashed using SHA-256 before transmission

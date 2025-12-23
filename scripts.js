@@ -1,30 +1,30 @@
-let initialSpawnRate = 0.015;    
-let spawnRateIncrease = 1.10;    
-let maxSpawnRate = 0.08;         
+let initialSpawnRate = 0.015;
+let spawnRateIncrease = 1.1;
+let maxSpawnRate = 0.08;
 
-let initialEnemySpeed = 0.18;     
-let enemySpeedIncrease = 1.05;     
-let maxEnemySpeed = 0.6;          
+let initialEnemySpeed = 0.18;
+let enemySpeedIncrease = 1.05;
+let maxEnemySpeed = 0.6;
 
-let baseBulletSpeed = 0.8;       
-let baseStalkerSpeed = 0.05;      
-let baseEnemySpeedFactor = 1.0;   
-let eliteEnemySpeedFactorIncrease = 1.2; 
+let baseBulletSpeed = 0.8;
+let baseStalkerSpeed = 0.05;
+let baseEnemySpeedFactor = 1.0;
+let eliteEnemySpeedFactorIncrease = 1.2;
 
 let initialStalkerSpawnTime = 45000;
-let stalkerSpawnIntervalTime = 15000; 
+let stalkerSpawnIntervalTime = 15000;
 
-let breatherWaveSpawnRateFactor = 0.5; 
-let breatherWaveEnemySpeedFactor = 0.8; 
-let breatherWaveDuration = 5000;      
-let lastBossWave = 0;                
-let breatherWaveActive = false;        
-let breatherWaveEndTime = 0;          
+let breatherWaveSpawnRateFactor = 0.5;
+let breatherWaveEnemySpeedFactor = 0.8;
+let breatherWaveDuration = 5000;
+let lastBossWave = 0;
+let breatherWaveActive = false;
+let breatherWaveEndTime = 0;
 
 const ENEMY_SPEED_FACTORS = {
-    "&": 0.8,  
-    "%": 1.2,  
-    "#": 1.0   
+  "&": 0.8,
+  "%": 1.2,
+  "#": 1.0,
 };
 
 const BOSS_TYPES = {
@@ -34,7 +34,7 @@ const BOSS_TYPES = {
     speed: 0.05,
     points: 20,
     shootInterval: 3000,
-    ability: "mine"
+    ability: "mine",
   },
   SHOOTER: {
     char: "@@",
@@ -43,12 +43,12 @@ const BOSS_TYPES = {
     points: 20,
     shootInterval: 3000,
     ability: "shoot",
-    shieldBullets: [], 
-    shieldRadius: 3, 
-    shieldBulletCount: 8, 
-    rotationSpeed: 0.1, 
-    lastShieldExplosion: 0, 
-    shieldExplosionInterval: 5000 
+    shieldBullets: [],
+    shieldRadius: 3,
+    shieldBulletCount: 8,
+    rotationSpeed: 0.1,
+    lastShieldExplosion: 0,
+    shieldExplosionInterval: 5000,
   },
   GHOST: {
     char: "%%",
@@ -59,20 +59,20 @@ const BOSS_TYPES = {
     vanishInterval: 3000,
     vanishDuration: 2000,
     ability: "spawn",
-    lastVanishTime: 0
+    lastVanishTime: 0,
   },
-  CHARGE: { 
+  CHARGE: {
     char: "><",
     health: 20,
-    speed: 0.2, 
+    speed: 0.2,
     points: 25,
     chargeInterval: 3000,
-    chargeSpeedFactor: 8, 
-    chargeDistance: 15, 
+    chargeSpeedFactor: 8,
+    chargeDistance: 15,
     ability: "charge",
-    lastChargeUse: 0
+    lastChargeUse: 0,
   },
-  SHIELD: { 
+  SHIELD: {
     char: "[]",
     health: 30,
     speed: 0.08,
@@ -82,10 +82,10 @@ const BOSS_TYPES = {
     ability: "shield",
     isShielded: false,
     shieldEndTime: 0,
-    mineInterval: 2000, 
-    lastMineShot: 0
+    mineInterval: 2000,
+    lastMineShot: 0,
   },
-  RAPID_FIRE: { 
+  RAPID_FIRE: {
     char: "==",
     health: 12,
     speed: 0.12,
@@ -95,9 +95,9 @@ const BOSS_TYPES = {
     ability: "rapidFire",
     isRapidFiring: false,
     rapidFireEndTime: 0,
-    lastRapidFireUse: 0
+    lastRapidFireUse: 0,
   },
-  AOE: { 
+  AOE: {
     char: "OO",
     health: 28,
     speed: 0.06,
@@ -106,21 +106,21 @@ const BOSS_TYPES = {
     aoeBulletSpeed: 0.5,
     aoeBulletCount: 12,
     ability: "aoe",
-    lastAoeUse: 0
-  }
+    lastAoeUse: 0,
+  },
 };
 
 let gameState = "start";
 let gameLoop;
 let score = 0;
 let wave = 0;
-let eliteWaveActive = false; 
+let eliteWaveActive = false;
 
-let stalkers = [];         
+let stalkers = [];
 let stalkerSpawnTime = initialStalkerSpawnTime;
 let stalkerSpawnInterval = stalkerSpawnIntervalTime;
-let lastStalkerSpawn = 0;    
-let waveStartTime = 0;       
+let lastStalkerSpawn = 0;
+let waveStartTime = 0;
 
 let player = {
   x: 40,
@@ -132,84 +132,93 @@ let player = {
   shootDy: -1,
 };
 
-let bullets = [];        
-let enemies = [];        
-let enemyBullets = [];   
+let bullets = [];
+let enemies = [];
+let enemyBullets = [];
 
-let gameWidth = 80;      
-let gameHeight = 35;     
-let bulletSpeed = baseBulletSpeed;   
-let enemySpeed = initialEnemySpeed;    
-let spawnRate = initialSpawnRate;    
-let stalkerSpeed = baseStalkerSpeed; 
-
+let gameWidth = 80;
+let gameHeight = 35;
+let bulletSpeed = baseBulletSpeed;
+let enemySpeed = initialEnemySpeed;
+let spawnRate = initialSpawnRate;
+let stalkerSpeed = baseStalkerSpeed;
 
 let audioContext;
 try {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
 } catch (error) {
-    console.error("Web Audio API is not supported in this browser:", error);
+  console.error("Web Audio API is not supported in this browser:", error);
 }
 
-function playSound(frequency, duration, volume = 0.5, type = 'sine', detune = 0, callback) {
-    if (!audioContext) return;
+function playSound(
+  frequency,
+  duration,
+  volume = 0.5,
+  type = "sine",
+  detune = 0,
+  callback
+) {
+  if (!audioContext) return;
 
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
 
-    oscillator.type = type;
-    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-    oscillator.detune.setValueAtTime(detune, audioContext.currentTime);
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+  oscillator.detune.setValueAtTime(detune, audioContext.currentTime);
 
-    gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+  gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(
+    0.001,
+    audioContext.currentTime + duration
+  );
 
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
 
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + duration);
+  oscillator.start();
+  oscillator.stop(audioContext.currentTime + duration);
 
-    if (callback) {
-        oscillator.onended = callback;
-    }
+  if (callback) {
+    oscillator.onended = callback;
+  }
 }
-
 
 // More refined sound functions
 function playPlayerShootSound() {
-  playSound(240, 0.03, 0.3, 'sawtooth');     // Main impact
-  playSound(120, 0.1, 0.1, 'square', -50); // Add some "crunch"
+  playSound(240, 0.03, 0.3, "sawtooth"); // Main impact
+  playSound(120, 0.1, 0.1, "square", -50); // Add some "crunch"
 }
 
 function playEnemyHitSound() {
-    //  Short, percussive sound with a bit of noise.
-    playSound(440, 0.03, 0.3, 'triangle');     // Main impact
-    playSound(220, 0.1, 0.1, 'square', -50);  // Add some "crunch"
+  //  Short, percussive sound with a bit of noise.
+  playSound(440, 0.03, 0.3, "triangle"); // Main impact
+  playSound(220, 0.1, 0.1, "square", -50); // Add some "crunch"
 }
 function playEnemyExplosionSound() {
-    playSound(110, 0.3, 0.8, 'sawtooth', -100);
+  playSound(110, 0.3, 0.8, "sawtooth", -100);
 }
 
 function playPlayerDeathSound() {
-    playSound(55, 0.6, 1.0, 'sawtooth', -500);
+  playSound(55, 0.6, 1.0, "sawtooth", -500);
 }
 
 function playStalkerSpawnSound() {
-    playSound(60, 2, 0.7, 'sawtooth', 50);
+  playSound(60, 2, 0.7, "sawtooth", 50);
 }
 
 function playBossSpawnSound() {
-    playSound(40, 1.5, 1.0, 'sawtooth', 100, () => {
-        playSound(60, 1, 0.7, 'sine', -500);
-    });
+  playSound(40, 1.5, 1.0, "sawtooth", 100, () => {
+    playSound(60, 1, 0.7, "sine", -500);
+  });
 }
-function playBossDeathSound() { // ADD THIS FUNCTION
-	playSound(75, 0.8, 1.0, 'sawtooth', -300);
+function playBossDeathSound() {
+  // ADD THIS FUNCTION
+  playSound(75, 0.8, 1.0, "sawtooth", -300);
 }
 
 function playMineExplosionSound() {
-  playSound(220, 0.2, 0.8, 'square');
+  playSound(220, 0.2, 0.8, "square");
 }
 
 function startGame() {
@@ -245,9 +254,9 @@ function initGame() {
   enemyBullets = [];
   stalkers = [];
   mines = [];
-  eliteWaveActive = false; 
-  lastBossWave = 0;      
-  breatherWaveActive = false; 
+  eliteWaveActive = false;
+  lastBossWave = 0;
+  breatherWaveActive = false;
 
   spawnRate = initialSpawnRate;
   enemySpeed = initialEnemySpeed;
@@ -262,8 +271,8 @@ function spawnMines() {
       mines.push({
         x: Math.random() * (gameWidth - 2) + 1,
         y: Math.random() * (gameHeight - 2) + 1,
-        char: 'o',
-        health: 3
+        char: "o",
+        health: 3,
       });
     }
   }
@@ -274,19 +283,19 @@ function spawnEnemy(isBoss = false) {
   let x, y;
 
   switch (side) {
-    case 0: 
+    case 0:
       x = Math.random() * gameWidth;
       y = 0;
       break;
-    case 1: 
+    case 1:
       x = gameWidth - 1;
       y = Math.random() * gameHeight;
       break;
-    case 2: 
+    case 2:
       x = Math.random() * gameWidth;
       y = gameHeight - 1;
       break;
-    case 3: 
+    case 3:
       x = 0;
       y = Math.random() * gameHeight;
       break;
@@ -294,7 +303,8 @@ function spawnEnemy(isBoss = false) {
 
   if (isBoss) {
     const bossTypes = Object.keys(BOSS_TYPES);
-    const selectedBoss = bossTypes[Math.floor(Math.random() * bossTypes.length)];
+    const selectedBoss =
+      bossTypes[Math.floor(Math.random() * bossTypes.length)];
     const bossConfig = BOSS_TYPES[selectedBoss];
 
     const boss = {
@@ -307,7 +317,13 @@ function spawnEnemy(isBoss = false) {
       ability: bossConfig.ability,
       isBoss: true,
       lastAbilityUse: Date.now(),
-      abilityInterval: bossConfig.shootInterval || bossConfig.spawnInterval || bossConfig.chargeInterval || bossConfig.shieldInterval || bossConfig.rapidFireInterval || bossConfig.aoeInterval,
+      abilityInterval:
+        bossConfig.shootInterval ||
+        bossConfig.spawnInterval ||
+        bossConfig.chargeInterval ||
+        bossConfig.shieldInterval ||
+        bossConfig.rapidFireInterval ||
+        bossConfig.aoeInterval,
 
       isInvisible: bossConfig.ability === "spawn" ? false : undefined,
       vanishEndTime: bossConfig.ability === "spawn" ? 0 : undefined,
@@ -322,57 +338,68 @@ function spawnEnemy(isBoss = false) {
       lastMineShot: bossConfig.ability === "shield" ? Date.now() : undefined,
       isRapidFiring: bossConfig.ability === "rapidFire" ? false : undefined,
       rapidFireEndTime: bossConfig.ability === "rapidFire" ? 0 : undefined,
-      lastRapidFireUse: bossConfig.ability === "rapidFire" ? Date.now() : undefined,
-      aoeBulletSpeed: bossConfig.ability === "aoe" ? BOSS_TYPES.AOE.aoeBulletSpeed : undefined,
-      aoeBulletCount: bossConfig.ability === "aoe" ? BOSS_TYPES.AOE.aoeBulletCount : undefined,
-      lastAoeUse: bossConfig.ability === "aoe" ? Date.now() : undefined
+      lastRapidFireUse:
+        bossConfig.ability === "rapidFire" ? Date.now() : undefined,
+      aoeBulletSpeed:
+        bossConfig.ability === "aoe"
+          ? BOSS_TYPES.AOE.aoeBulletSpeed
+          : undefined,
+      aoeBulletCount:
+        bossConfig.ability === "aoe"
+          ? BOSS_TYPES.AOE.aoeBulletCount
+          : undefined,
+      lastAoeUse: bossConfig.ability === "aoe" ? Date.now() : undefined,
     };
 
     enemies.push(boss);
     playBossSpawnSound();
   } else {
-    const enemyType = Math.random() < 0.33 ? "&" : Math.random() < 0.5 ? "%" : "#";
-    let speedFactor = ENEMY_SPEED_FACTORS[enemyType] || baseEnemySpeedFactor; 
-    let eliteEnemyChar = enemyType; 
+    const enemyType =
+      Math.random() < 0.33 ? "&" : Math.random() < 0.5 ? "%" : "#";
+    let speedFactor = ENEMY_SPEED_FACTORS[enemyType] || baseEnemySpeedFactor;
+    let eliteEnemyChar = enemyType;
     let isElite = false;
 
     if (eliteWaveActive) {
-        if (Math.random() < 0.4) { 
-            isElite = true;
-            speedFactor *= eliteEnemySpeedFactorIncrease; 
-            eliteEnemyChar = enemyType.toUpperCase(); 
-        }
+      if (Math.random() < 0.4) {
+        isElite = true;
+        speedFactor *= eliteEnemySpeedFactorIncrease;
+        eliteEnemyChar = enemyType.toUpperCase();
+      }
     }
 
     enemies.push({
       x: x,
       y: y,
-      char: isElite ? eliteEnemyChar : enemyType, 
+      char: isElite ? eliteEnemyChar : enemyType,
       type: Math.floor(Math.random() * 3),
       health: 1,
       isBoss: false,
-      speedFactor: speedFactor, 
-      isElite: isElite 
+      speedFactor: speedFactor,
+      isElite: isElite,
     });
   }
 }
 
 function spawnMultipleBosses(waveNumber) {
-    const numberOfBosses = Math.floor(waveNumber / 5); 
-    for (let i = 0; i < numberOfBosses; i++) {
-        spawnEnemy(true);
-    }
+  const numberOfBosses = Math.floor(waveNumber / 5);
+  for (let i = 0; i < numberOfBosses; i++) {
+    spawnEnemy(true);
+  }
 }
 
 function updateGame() {
   if (wave === 0) {
-      spawnRate = initialSpawnRate * 0.7; 
-      enemySpeed = initialEnemySpeed * 0.8; 
+    spawnRate = initialSpawnRate * 0.7;
+    enemySpeed = initialEnemySpeed * 0.8;
   }
 
   // Check player collision with mines
   for (let i = mines.length - 1; i >= 0; i--) {
-    if (Math.abs(player.x - mines[i].x) < 0.8 && Math.abs(player.y - mines[i].y) < 0.8) {
+    if (
+      Math.abs(player.x - mines[i].x) < 0.8 &&
+      Math.abs(player.y - mines[i].y) < 0.8
+    ) {
       playPlayerDeathSound();
       endGame();
       return;
@@ -380,14 +407,18 @@ function updateGame() {
   }
 
   if (breatherWaveActive && Date.now() > breatherWaveEndTime) {
-      breatherWaveActive = false; 
-      eliteWaveActive = true;      
-      spawnRate = Math.min(maxSpawnRate, spawnRate * spawnRateIncrease); 
-      enemySpeed = Math.min(maxEnemySpeed, enemySpeed * enemySpeedIncrease); 
+    breatherWaveActive = false;
+    eliteWaveActive = true;
+    spawnRate = Math.min(maxSpawnRate, spawnRate * spawnRateIncrease);
+    enemySpeed = Math.min(maxEnemySpeed, enemySpeed * enemySpeedIncrease);
   }
 
-  let currentSpawnRate = breatherWaveActive ? spawnRate * breatherWaveSpawnRateFactor : spawnRate;
-  let currentEnemySpeedBase = breatherWaveActive ? enemySpeed * breatherWaveEnemySpeedFactor : enemySpeed;
+  let currentSpawnRate = breatherWaveActive
+    ? spawnRate * breatherWaveSpawnRateFactor
+    : spawnRate;
+  let currentEnemySpeedBase = breatherWaveActive
+    ? enemySpeed * breatherWaveEnemySpeedFactor
+    : enemySpeed;
 
   player.x = Math.max(0, Math.min(gameWidth - 1, player.x + player.dx));
   player.y = Math.max(1, Math.min(gameHeight - 1, player.y + player.dy));
@@ -408,19 +439,25 @@ function updateGame() {
 
     // Check collision with mines and mine-type bullets
     for (let j = mines.length - 1; j >= 0; j--) {
-      if (Math.abs(bullets[i].x - mines[j].x) < 1 && Math.abs(bullets[i].y - mines[j].y) < 1) {
+      if (
+        Math.abs(bullets[i].x - mines[j].x) < 1 &&
+        Math.abs(bullets[i].y - mines[j].y) < 1
+      ) {
         mines[j].health--;
         bullets.splice(i, 1);
         playMineExplosionSound();
-        
+
         if (mines[j].health <= 0) {
-          const mineX = mines[j].x;  // Store coordinates before splicing
+          const mineX = mines[j].x; // Store coordinates before splicing
           const mineY = mines[j].y;
           mines.splice(j, 1);
-          
+
           // Check for nearby enemies using stored coordinates
           for (let k = enemies.length - 1; k >= 0; k--) {
-            if (Math.abs(enemies[k].x - mineX) <= 3 && Math.abs(enemies[k].y - mineY) <= 3) {
+            if (
+              Math.abs(enemies[k].x - mineX) <= 3 &&
+              Math.abs(enemies[k].y - mineY) <= 3
+            ) {
               score += enemies[k].isBoss ? enemies[k].points : 10;
               enemies.splice(k, 1);
             }
@@ -433,17 +470,22 @@ function updateGame() {
     // Add collision check for mine-type enemy bullets
     if (bullets[i]) {
       for (let j = enemyBullets.length - 1; j >= 0; j--) {
-        if (enemyBullets[j].char === "o" && 
-            Math.abs(bullets[i].x - enemyBullets[j].x) < 1 && 
-            Math.abs(bullets[i].y - enemyBullets[j].y) < 1) {
-          const mineX = enemyBullets[j].x;  // Store coordinates before splicing
+        if (
+          enemyBullets[j].char === "o" &&
+          Math.abs(bullets[i].x - enemyBullets[j].x) < 1 &&
+          Math.abs(bullets[i].y - enemyBullets[j].y) < 1
+        ) {
+          const mineX = enemyBullets[j].x; // Store coordinates before splicing
           const mineY = enemyBullets[j].y;
           bullets.splice(i, 1);
           enemyBullets.splice(j, 1);
-          
+
           // Check for nearby enemies using stored coordinates
           for (let k = enemies.length - 1; k >= 0; k--) {
-            if (Math.abs(enemies[k].x - mineX) <= 3 && Math.abs(enemies[k].y - mineY) <= 3) {
+            if (
+              Math.abs(enemies[k].x - mineX) <= 3 &&
+              Math.abs(enemies[k].y - mineY) <= 3
+            ) {
               score += enemies[k].isBoss ? enemies[k].points : 10;
               enemies.splice(k, 1);
             }
@@ -480,43 +522,42 @@ function updateGame() {
 
   if (enemies.length === 0) {
     wave++;
-    eliteWaveActive = false; 
+    eliteWaveActive = false;
     mines = [];
     spawnMines();
 
-    enemyBullets = enemyBullets.filter(bullet => bullet.char === "o");
+    enemyBullets = enemyBullets.filter((bullet) => bullet.char === "o");
 
-    if (!breatherWaveActive) { 
-        spawnRate = Math.min(maxSpawnRate, spawnRate * spawnRateIncrease); 
-        enemySpeed = Math.min(maxEnemySpeed, enemySpeed * enemySpeedIncrease); 
+    if (!breatherWaveActive) {
+      spawnRate = Math.min(maxSpawnRate, spawnRate * spawnRateIncrease);
+      enemySpeed = Math.min(maxEnemySpeed, enemySpeed * enemySpeedIncrease);
     }
 
     waveStartTime = Date.now();
-    stalkers = []; 
+    stalkers = [];
 
-    stalkerSpawnTime = Math.max(10000, stalkerSpawnTime * 0.95); 
-    stalkerSpawnInterval = Math.max(5000, stalkerSpawnInterval * 0.95); 
+    stalkerSpawnTime = Math.max(10000, stalkerSpawnTime * 0.95);
+    stalkerSpawnInterval = Math.max(5000, stalkerSpawnInterval * 0.95);
 
     const isBossWave = wave % 5 === 0;
 
     if (isBossWave) {
-      spawnMultipleBosses(wave); 
-      lastBossWave = wave; 
-      breatherWaveActive = true; 
-      breatherWaveEndTime = Date.now() + breatherWaveDuration; 
+      spawnMultipleBosses(wave);
+      lastBossWave = wave;
+      breatherWaveActive = true;
+      breatherWaveEndTime = Date.now() + breatherWaveDuration;
+    } else if (wave === lastBossWave + 1) {
+      breatherWaveActive = true;
+      breatherWaveEndTime = Date.now() + breatherWaveDuration;
 
-    } else if (wave === lastBossWave + 1) { 
-        breatherWaveActive = true;
-        breatherWaveEndTime = Date.now() + breatherWaveDuration;
-
-        for (let i = 0; i < Math.max(1, Math.floor(wave * breatherWaveSpawnRateFactor)); i++) { 
-            spawnEnemy();
-        }
-
-    }
-
-    else {
-
+      for (
+        let i = 0;
+        i < Math.max(1, Math.floor(wave * breatherWaveSpawnRateFactor));
+        i++
+      ) {
+        spawnEnemy();
+      }
+    } else {
       for (let i = 0; i < wave; i++) {
         spawnEnemy();
       }
@@ -524,30 +565,47 @@ function updateGame() {
   }
 
   const currentTime = Date.now();
-  if (currentTime - waveStartTime >= stalkerSpawnTime &&
-      (stalkers.length === 0 || currentTime - lastStalkerSpawn >= stalkerSpawnInterval)) {
-
+  if (
+    currentTime - waveStartTime >= stalkerSpawnTime &&
+    (stalkers.length === 0 ||
+      currentTime - lastStalkerSpawn >= stalkerSpawnInterval)
+  ) {
     const side = Math.floor(Math.random() * 4);
     let x, y;
     switch (side) {
-      case 0: x = Math.random() * gameWidth; y = 0; break;
-      case 1: x = gameWidth - 1; y = gameHeight - 1; break;
-      case 2: x = Math.random() * gameWidth; y = gameHeight - 1; break;
-      case 3: x = 0; y = Math.random() * gameHeight; break;
+      case 0:
+        x = Math.random() * gameWidth;
+        y = 0;
+        break;
+      case 1:
+        x = gameWidth - 1;
+        y = gameHeight - 1;
+        break;
+      case 2:
+        x = Math.random() * gameWidth;
+        y = gameHeight - 1;
+        break;
+      case 3:
+        x = 0;
+        y = Math.random() * gameHeight;
+        break;
     }
     stalkers.push({ x, y, char: "Ξ" });
     lastStalkerSpawn = currentTime;
     playStalkerSpawnSound();
   }
 
-  stalkers.forEach(stalker => {
+  stalkers.forEach((stalker) => {
     const dx = player.x - stalker.x;
     const dy = player.y - stalker.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
     stalker.x += (dx / dist) * stalkerSpeed;
     stalker.y += (dy / dist) * stalkerSpeed;
 
-    if (Math.abs(player.x - stalker.x) < 1 && Math.abs(player.y - stalker.y) < 0.8) {
+    if (
+      Math.abs(player.x - stalker.x) < 1 &&
+      Math.abs(player.y - stalker.y) < 0.8
+    ) {
       playPlayerDeathSound();
       endGame();
       return;
@@ -555,14 +613,14 @@ function updateGame() {
   });
 
   for (let i = enemies.length - 1; i >= 0; i--) {
-
     if (!enemies[i]) continue;
 
     const dx = player.x - enemies[i].x;
     const dy = player.y - enemies[i].y;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    const currentEnemySpeed = currentEnemySpeedBase * (enemies[i].speedFactor || baseEnemySpeedFactor);
+    const currentEnemySpeed =
+      currentEnemySpeedBase * (enemies[i].speedFactor || baseEnemySpeedFactor);
     enemies[i].x += (dx / dist) * currentEnemySpeed;
     enemies[i].y += (dy / dist) * currentEnemySpeed;
 
@@ -575,8 +633,6 @@ function updateGame() {
         bullets.splice(j, 1);
         playEnemyHitSound(); // Play hit sound *immediately* after impact
 
-        
-        
         if (enemies[i].health <= 0) {
           if (enemies[i].isBoss && enemies[i].ability === "charge") {
             const splitBossLeft = {
@@ -588,7 +644,7 @@ function updateGame() {
               points: Math.ceil(BOSS_TYPES.CHARGE.points / 2),
               isBoss: true,
               direction: "left",
-              ability: "split"
+              ability: "split",
             };
 
             const splitBossRight = {
@@ -600,7 +656,7 @@ function updateGame() {
               points: Math.ceil(BOSS_TYPES.CHARGE.points / 2),
               isBoss: true,
               direction: "right",
-              ability: "split"
+              ability: "split",
             };
 
             enemies.push(splitBossLeft, splitBossRight);
@@ -617,13 +673,15 @@ function updateGame() {
 
     if (!enemies[i]) continue;
 
-    if (enemies[i].isBoss && Date.now() - enemies[i].lastAbilityUse >= enemies[i].abilityInterval) {
+    if (
+      enemies[i].isBoss &&
+      Date.now() - enemies[i].lastAbilityUse >= enemies[i].abilityInterval
+    ) {
       const boss = enemies[i];
       boss.lastAbilityUse = Date.now();
 
       switch (boss.ability) {
         case "shoot":
-
           if (!boss.shieldBullets) {
             boss.shieldBullets = [];
             boss.lastShieldExplosion = Date.now();
@@ -631,34 +689,40 @@ function updateGame() {
 
           if (boss.shieldBullets.length === 0) {
             for (let i = 0; i < BOSS_TYPES.SHOOTER.shieldBulletCount; i++) {
-              const angle = (i / BOSS_TYPES.SHOOTER.shieldBulletCount) * 2 * Math.PI;
+              const angle =
+                (i / BOSS_TYPES.SHOOTER.shieldBulletCount) * 2 * Math.PI;
               boss.shieldBullets.push({
                 angle: angle,
                 x: boss.x + Math.cos(angle) * BOSS_TYPES.SHOOTER.shieldRadius,
-                y: boss.y + Math.sin(angle) * BOSS_TYPES.SHOOTER.shieldRadius
+                y: boss.y + Math.sin(angle) * BOSS_TYPES.SHOOTER.shieldRadius,
               });
             }
           }
 
-          boss.shieldBullets.forEach(bullet => {
+          boss.shieldBullets.forEach((bullet) => {
             bullet.angle += BOSS_TYPES.SHOOTER.rotationSpeed;
-            bullet.x = boss.x + Math.cos(bullet.angle) * BOSS_TYPES.SHOOTER.shieldRadius;
-            bullet.y = boss.y + Math.sin(bullet.angle) * BOSS_TYPES.SHOOTER.shieldRadius;
+            bullet.x =
+              boss.x + Math.cos(bullet.angle) * BOSS_TYPES.SHOOTER.shieldRadius;
+            bullet.y =
+              boss.y + Math.sin(bullet.angle) * BOSS_TYPES.SHOOTER.shieldRadius;
 
             enemyBullets.push({
               x: bullet.x,
               y: bullet.y,
               dx: 0,
               dy: 0,
-              char: "*"
+              char: "*",
             });
           });
 
-const shieldExplosionTime = Date.now();
-          if (currentTime - boss.lastShieldExplosion >= BOSS_TYPES.SHOOTER.shieldExplosionInterval) {
+          const shieldExplosionTime = Date.now();
+          if (
+            currentTime - boss.lastShieldExplosion >=
+            BOSS_TYPES.SHOOTER.shieldExplosionInterval
+          ) {
             boss.lastShieldExplosion = currentTime;
 
-            boss.shieldBullets.forEach(bullet => {
+            boss.shieldBullets.forEach((bullet) => {
               const dx = (bullet.x - boss.x) / BOSS_TYPES.SHOOTER.shieldRadius;
               const dy = (bullet.y - boss.y) / BOSS_TYPES.SHOOTER.shieldRadius;
               enemyBullets.push({
@@ -666,7 +730,7 @@ const shieldExplosionTime = Date.now();
                 y: bullet.y,
                 dx: dx,
                 dy: dy,
-                char: "*"
+                char: "*",
               });
             });
 
@@ -675,26 +739,28 @@ const shieldExplosionTime = Date.now();
           break;
 
         case "mine":
-
           if (boss.ability === "mine") {
             enemyBullets.push({
               x: boss.x,
               y: boss.y,
               dx: 0,
               dy: 0,
-              char: "o"
+              char: "o",
             });
           }
           break;
 
         case "spawn":
-
           if (boss.ability === "spawn") {
-
             const currentTime = Date.now();
-            if (!boss.isInvisible && currentTime - boss.lastVanishTime >= BOSS_TYPES.GHOST.vanishInterval) {
+            if (
+              !boss.isInvisible &&
+              currentTime - boss.lastVanishTime >=
+                BOSS_TYPES.GHOST.vanishInterval
+            ) {
               boss.isInvisible = true;
-              boss.vanishEndTime = currentTime + BOSS_TYPES.GHOST.vanishDuration;
+              boss.vanishEndTime =
+                currentTime + BOSS_TYPES.GHOST.vanishDuration;
               boss.lastVanishTime = currentTime;
             } else if (boss.isInvisible && currentTime > boss.vanishEndTime) {
               boss.isInvisible = false;
@@ -705,7 +771,6 @@ const shieldExplosionTime = Date.now();
           break;
 
         case "charge":
-
           const dx = player.x - boss.x;
           const dy = player.y - boss.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
@@ -714,7 +779,6 @@ const shieldExplosionTime = Date.now();
           break;
 
         case "split":
-
           const verticalDist = player.y - boss.y;
           boss.y += (verticalDist / Math.abs(verticalDist)) * boss.speed;
 
@@ -729,76 +793,97 @@ const shieldExplosionTime = Date.now();
 
         case "shield":
           if (boss.ability === "shield") {
-              const currentTime = Date.now();
-              if (!boss.isShielded && currentTime - boss.lastShieldUse >= BOSS_TYPES.SHIELD.shieldInterval) {
-                  boss.isShielded = true;
-                  boss.shieldEndTime = currentTime + BOSS_TYPES.SHIELD.shieldDuration;
-                  boss.lastShieldUse = currentTime;
-              }
+            const currentTime = Date.now();
+            if (
+              !boss.isShielded &&
+              currentTime - boss.lastShieldUse >=
+                BOSS_TYPES.SHIELD.shieldInterval
+            ) {
+              boss.isShielded = true;
+              boss.shieldEndTime =
+                currentTime + BOSS_TYPES.SHIELD.shieldDuration;
+              boss.lastShieldUse = currentTime;
+            }
 
-              if (boss.isShielded) {
-                  if (currentTime > boss.shieldEndTime) {
-                      boss.isShielded = false;
-                  } else if (currentTime - boss.lastMineShot >= BOSS_TYPES.SHIELD.mineInterval) {
-                      enemyBullets.push({ x: boss.x, y: boss.y, dx: 0, dy: 0, char: "o" });
-                      boss.lastMineShot = currentTime;
-                  }
+            if (boss.isShielded) {
+              if (currentTime > boss.shieldEndTime) {
+                boss.isShielded = false;
+              } else if (
+                currentTime - boss.lastMineShot >=
+                BOSS_TYPES.SHIELD.mineInterval
+              ) {
+                enemyBullets.push({
+                  x: boss.x,
+                  y: boss.y,
+                  dx: 0,
+                  dy: 0,
+                  char: "o",
+                });
+                boss.lastMineShot = currentTime;
               }
+            }
           }
           break;
 
         case "rapidFire":
           if (boss.ability === "rapidFire") {
-              const currentTime = Date.now();
-              if (!boss.isRapidFiring && currentTime - boss.lastRapidFireUse >= BOSS_TYPES.RAPID_FIRE.rapidFireInterval) {
-                  boss.isRapidFiring = true;
-                  boss.rapidFireEndTime = currentTime + BOSS_TYPES.RAPID_FIRE.rapidFireDuration;
-                  boss.lastRapidFireUse = currentTime;
-              }
+            const currentTime = Date.now();
+            if (
+              !boss.isRapidFiring &&
+              currentTime - boss.lastRapidFireUse >=
+                BOSS_TYPES.RAPID_FIRE.rapidFireInterval
+            ) {
+              boss.isRapidFiring = true;
+              boss.rapidFireEndTime =
+                currentTime + BOSS_TYPES.RAPID_FIRE.rapidFireDuration;
+              boss.lastRapidFireUse = currentTime;
+            }
 
-              if (boss.isRapidFiring) {
-                  if (currentTime > boss.rapidFireEndTime) {
-                      boss.isRapidFiring = false;
-                  } else {
-
-                      const baseAngle = Math.atan2(player.y - boss.y, player.x - boss.x);
-                      const spreadAngles = [-0.3, -0.15, 0, 0.15, 0.3]; 
-                      spreadAngles.forEach(angle => {
-                          const finalAngle = baseAngle + angle;
-                          const dx = Math.cos(finalAngle);
-                          const dy = Math.sin(finalAngle);
-                          enemyBullets.push({ 
-                              x: boss.x,
-                              y: boss.y,
-                              dx: dx,
-                              dy: dy,
-                              char: "*"
-                          });
-                      });
-                  }
+            if (boss.isRapidFiring) {
+              if (currentTime > boss.rapidFireEndTime) {
+                boss.isRapidFiring = false;
+              } else {
+                const baseAngle = Math.atan2(
+                  player.y - boss.y,
+                  player.x - boss.x
+                );
+                const spreadAngles = [-0.3, -0.15, 0, 0.15, 0.3];
+                spreadAngles.forEach((angle) => {
+                  const finalAngle = baseAngle + angle;
+                  const dx = Math.cos(finalAngle);
+                  const dy = Math.sin(finalAngle);
+                  enemyBullets.push({
+                    x: boss.x,
+                    y: boss.y,
+                    dx: dx,
+                    dy: dy,
+                    char: "*",
+                  });
+                });
               }
+            }
           }
           break;
 
         case "aoe":
           if (boss.ability === "aoe") {
-              const currentTime = Date.now();
-              if (currentTime - boss.lastAoeUse >= BOSS_TYPES.AOE.aoeInterval) {
-                  boss.lastAoeUse = currentTime;
-                  const bulletCount = BOSS_TYPES.AOE.aoeBulletCount;
-                  const bulletSpeed = BOSS_TYPES.AOE.aoeBulletSpeed;
+            const currentTime = Date.now();
+            if (currentTime - boss.lastAoeUse >= BOSS_TYPES.AOE.aoeInterval) {
+              boss.lastAoeUse = currentTime;
+              const bulletCount = BOSS_TYPES.AOE.aoeBulletCount;
+              const bulletSpeed = BOSS_TYPES.AOE.aoeBulletSpeed;
 
-                  for (let j = 0; j < bulletCount; j++) {
-                      const angle = (j / bulletCount) * 2 * Math.PI;
-                      enemyBullets.push({
-                          x: boss.x,
-                          y: boss.y,
-                          dx: Math.cos(angle) * bulletSpeed,
-                          dy: Math.sin(angle) * bulletSpeed,
-                          char: "o"
-                      });
-                  }
+              for (let j = 0; j < bulletCount; j++) {
+                const angle = (j / bulletCount) * 2 * Math.PI;
+                enemyBullets.push({
+                  x: boss.x,
+                  y: boss.y,
+                  dx: Math.cos(angle) * bulletSpeed,
+                  dy: Math.sin(angle) * bulletSpeed,
+                  char: "o",
+                });
               }
+            }
           }
           break;
       }
@@ -838,7 +923,9 @@ function drawGame() {
     const x = Math.floor(bullet.x);
     const y = Math.floor(bullet.y);
     if (x >= 0 && x < gameWidth && y >= 0 && y < gameHeight) {
-      screen[y][x] = `<span style="color: var(--ctp-enemy-bullet)">${bullet.char}</span>`;
+      screen[y][
+        x
+      ] = `<span style="color: var(--ctp-enemy-bullet)">${bullet.char}</span>`;
     }
   });
 
@@ -846,7 +933,9 @@ function drawGame() {
     const x = Math.floor(stalker.x);
     const y = Math.floor(stalker.y);
     if (x >= 0 && x < gameWidth && y >= 0 && y < gameHeight) {
-      screen[y][x] = `<span style="color: var(--ctp-stalker); animation: pulse 2s infinite;">${stalker.char}</span>`;
+      screen[y][
+        x
+      ] = `<span style="color: var(--ctp-stalker); animation: pulse 2s infinite;">${stalker.char}</span>`;
     }
   });
 
@@ -854,12 +943,13 @@ function drawGame() {
     const x = Math.floor(mine.x);
     const y = Math.floor(mine.y);
     if (x >= 0 && x < gameWidth && y >= 0 && y < gameHeight) {
-      screen[y][x] = `<span style="color: var(--ctp-enemy-bullet)">${mine.char}</span>`;
+      screen[y][
+        x
+      ] = `<span style="color: var(--ctp-enemy-bullet)">${mine.char}</span>`;
     }
   });
 
   enemies.forEach((enemy) => {
-
     if (enemy.isBoss && enemy.ability === "spawn" && enemy.isInvisible) {
       return;
     }
@@ -868,12 +958,14 @@ function drawGame() {
     const y = Math.floor(enemy.y);
     if (x >= 0 && x < gameWidth && y >= 0 && y < gameHeight) {
       const enemyColors = ["--ctp-enemy1", "--ctp-enemy2", "--ctp-enemy3"];
-      const colorIndex = enemy.isElite ? 1 : enemy.type; 
-      screen[y][x] = `<span style="color: var(${enemyColors[colorIndex]})">${
-        enemy.char
-      }</span>`;
-      if (enemy.isBoss && enemy.isShielded) { 
-        screen[y][x] = `<span style="color: var(--ctp-red); animation: blink-shield 1s step-end infinite;">${enemy.char}</span>`; 
+      const colorIndex = enemy.isElite ? 1 : enemy.type;
+      screen[y][
+        x
+      ] = `<span style="color: var(${enemyColors[colorIndex]})">${enemy.char}</span>`;
+      if (enemy.isBoss && enemy.isShielded) {
+        screen[y][
+          x
+        ] = `<span style="color: var(--ctp-red); animation: blink-shield 1s step-end infinite;">${enemy.char}</span>`;
       }
     }
   });
@@ -942,7 +1034,7 @@ function endGame() {
 document.addEventListener("keydown", (e) => {
   if (gameState === "start") {
     if (e.code === "Space") {
-      setTimeout(startGame, 100); 
+      setTimeout(startGame, 100);
       return;
     } else if (e.code === "KeyT") {
       const modalScores = document.getElementById("modal-scores");
@@ -994,7 +1086,6 @@ document.addEventListener("keydown", (e) => {
       return;
     }
   } else if (gameState === "end") {
-
     if (
       document.activeElement === document.getElementById("player-credentials")
     ) {
@@ -1012,7 +1103,6 @@ document.addEventListener("keydown", (e) => {
 
   if (gameState === "playing") {
     switch (e.code) {
-
       case "KeyW":
         player.dy = -1;
         break;
@@ -1026,22 +1116,22 @@ document.addEventListener("keydown", (e) => {
         player.dx = 1;
         break;
 
-        case "ArrowUp":
-          bullets.push({ x: player.x, y: player.y, dx: 0, dy: -1 });
-          playPlayerShootSound(); // Add this line
-          break;
-        case "ArrowDown":
-          bullets.push({ x: player.x, y: player.y, dx: 0, dy: 1 });
-          playPlayerShootSound(); // Add this line
-          break;
-        case "ArrowLeft":
-          bullets.push({ x: player.x, y: player.y, dx: -1, dy: 0 });
-          playPlayerShootSound(); // Add this line
-          break;
-        case "ArrowRight":
-          bullets.push({ x: player.x, y: player.y, dx: 1, dy: 0 });
-          playPlayerShootSound(); // Add this line
-          break;
+      case "ArrowUp":
+        bullets.push({ x: player.x, y: player.y, dx: 0, dy: -1 });
+        playPlayerShootSound(); // Add this line
+        break;
+      case "ArrowDown":
+        bullets.push({ x: player.x, y: player.y, dx: 0, dy: 1 });
+        playPlayerShootSound(); // Add this line
+        break;
+      case "ArrowLeft":
+        bullets.push({ x: player.x, y: player.y, dx: -1, dy: 0 });
+        playPlayerShootSound(); // Add this line
+        break;
+      case "ArrowRight":
+        bullets.push({ x: player.x, y: player.y, dx: 1, dy: 0 });
+        playPlayerShootSound(); // Add this line
+        break;
     }
   }
 });
@@ -1049,7 +1139,6 @@ document.addEventListener("keydown", (e) => {
 document.addEventListener("keyup", (e) => {
   if (gameState === "playing") {
     switch (e.code) {
-
       case "KeyW":
       case "KeyS":
         player.dy = 0;
@@ -1084,24 +1173,21 @@ async function submitScore(score) {
       .map((b) => b.toString(16).padStart(2, "0"))
       .join("");
 
-    const response = await fetch(
-      "https://asciitron-api.leefamous.workers.dev/scores",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          score,
-          name: `${displayName}#${hashHex}`,
-        }),
-      }
-    );
+    const response = await fetch("/scores", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        score,
+        name: `${displayName}#${hashHex}`,
+      }),
+    });
     const result = await response.json();
     if (!result.success) {
       throw new Error(result.error || "Failed to submit score");
     }
-    await getLeaderboard(); 
+    await getLeaderboard();
   } catch (error) {
     console.error("Error submitting score:", error);
     alert("Failed to submit score. Please try again.");
@@ -1116,14 +1202,13 @@ function updateModalScores() {
 
 async function getLeaderboard() {
   try {
-    const response = await fetch(
-      "https://asciitron-api.leefamous.workers.dev/scores",
-      { headers: { "Content-Type": "application/json" } }
-    );
+    const response = await fetch("/scores", {
+      headers: { "Content-Type": "application/json" },
+    });
     const scores = await response.json();
     console.log("Leaderboard response:", scores);
-    updateLeaderboardDisplay(scores); 
-    updateScoresPopup(scores); 
+    updateLeaderboardDisplay(scores);
+    updateScoresPopup(scores);
     return scores;
   } catch (error) {
     console.error("Error fetching leaderboard:", error);
@@ -1133,31 +1218,45 @@ async function getLeaderboard() {
 function updateLeaderboardDisplay(scores) {
   console.log("Updating leaderboard with", scores.length, "scores.");
   const catppuccinColors = [
-    "#f5c2e7", 
-    "#cba6f7", 
-    "#89b4fa", 
-    "#94e2d5", 
-    "#a6e3a1", 
-    "#fab387", 
-    "#f38ba8", 
-    "#eba0ac", 
+    "#f5c2e7",
+    "#cba6f7",
+    "#89b4fa",
+    "#94e2d5",
+    "#a6e3a1",
+    "#fab387",
+    "#f38ba8",
+    "#eba0ac",
   ];
   const scoresDiv = document.getElementById("scores");
   if (scores && scores.length > 0) {
-
     const highestScoreEntry = scores.reduce((prev, current) =>
       prev.score > current.score ? prev : current
     );
     const color = getColorFromTripcode(highestScoreEntry.tripcode);
-    document.getElementById("display-high-score").innerHTML =
-      `<div style="font-family: 'Courier New', monospace; white-space: pre;">1. <span style="color: ${color}; display: inline-block; width: 165px">${highestScoreEntry.name}<span style="font-family: monospace; font-size: 0.7em; opacity: 0.3; display: inline-block; width: 60px"> !${highestScoreEntry.tripcode}</span></span><span style="color: ${color}; opacity: 0.8; display: inline-block; width: 40px; text-align: right">${highestScoreEntry.score}</span></div>`;
+    document.getElementById(
+      "display-high-score"
+    ).innerHTML = `<div style="font-family: 'Courier New', monospace; white-space: pre;">1. <span style="color: ${color}; display: inline-block; width: 165px">${highestScoreEntry.name}<span style="font-family: monospace; font-size: 0.7em; opacity: 0.3; display: inline-block; width: 60px"> !${highestScoreEntry.tripcode}</span></span><span style="color: ${color}; opacity: 0.8; display: inline-block; width: 40px; text-align: right">${highestScoreEntry.score}</span></div>`;
 
     const topScores = scores.slice(0, 100);
     scoresDiv.innerHTML = topScores
       .map((score, index) => {
         const color = getColorFromTripcode(score.tripcode);
-        const rowStyle = index % 2 === 0 ? "" : " background-color: rgba(49, 50, 68, 0.3);";
-        return `<div style="font-family: 'Courier New', monospace; white-space: pre;${rowStyle}">${(index + 1).toString().padStart(3, ' ')}. <span style="color: ${color}; display: inline-block; width: 165px">${score.name}<span style="font-family: monospace; font-size: 0.7em; opacity: 0.3; display: inline-block; width: 60px"> !${score.tripcode}</span></span><span style="color: ${color}; opacity: 0.8; display: inline-block; width: 40px; text-align: right">${score.score}</span></div>`;
+        const rowStyle =
+          index % 2 === 0 ? "" : " background-color: rgba(49, 50, 68, 0.3);";
+        return `<div style="font-family: 'Courier New', monospace; white-space: pre;${rowStyle}">${(
+          index + 1
+        )
+          .toString()
+          .padStart(
+            3,
+            " "
+          )}. <span style="color: ${color}; display: inline-block; width: 165px">${
+          score.name
+        }<span style="font-family: monospace; font-size: 0.7em; opacity: 0.3; display: inline-block; width: 60px"> !${
+          score.tripcode
+        }</span></span><span style="color: ${color}; opacity: 0.8; display: inline-block; width: 40px; text-align: right">${
+          score.score
+        }</span></div>`;
       })
       .join("");
   } else {
@@ -1167,14 +1266,14 @@ function updateLeaderboardDisplay(scores) {
 
 function getColorFromTripcode(tripcode) {
   const catppuccinColors = [
-    "#f5c2e7", 
-    "#cba6f7", 
-    "#89b4fa", 
-    "#94e2d5", 
-    "#a6e3a1", 
-    "#fab387", 
-    "#f38ba8", 
-    "#eba0ac", 
+    "#f5c2e7",
+    "#cba6f7",
+    "#89b4fa",
+    "#94e2d5",
+    "#a6e3a1",
+    "#fab387",
+    "#f38ba8",
+    "#eba0ac",
   ];
   const colorIndex = tripcode.charCodeAt(0) % catppuccinColors.length;
   return catppuccinColors[colorIndex];
@@ -1194,8 +1293,10 @@ function showNotification(message, type = "info") {
 }
 
 function saveScore() {
-
-  if (document.getElementById("save-score-text").textContent === "[V] Score Saved!") {
+  if (
+    document.getElementById("save-score-text").textContent ===
+    "[V] Score Saved!"
+  ) {
     return;
   }
 
@@ -1268,11 +1369,15 @@ function saveScore() {
       console.error("Error saving score:", error);
 
       if (error.response) {
-        error.response.json().then(data => {
-          showNotification(data.error || "Failed to save score. Please try again.");
+        error.response.json().then((data) => {
+          showNotification(
+            data.error || "Failed to save score. Please try again."
+          );
         });
       } else {
-        showNotification(error.message || "Failed to save score. Please try again.");
+        showNotification(
+          error.message || "Failed to save score. Please try again."
+        );
       }
     });
 }
@@ -1296,8 +1401,22 @@ function updateScoresPopup(scores) {
     popup.innerHTML = topScores
       .map((score, index) => {
         const color = getColorFromTripcode(score.tripcode);
-        const rowStyle = index % 2 === 0 ? "" : " background-color: rgba(49, 50, 68, 0.3);";
-        return `<div style="font-family: 'Courier New', monospace; white-space: pre;${rowStyle}">${(index + 1).toString().padStart(3, ' ')}. <span style="color: ${color}; display: inline-block; width: 165px">${score.name}<span style="font-family: monospace; font-size: 0.7em; opacity: 0.3; display: inline-block; width: 60px"> !${score.tripcode}</span></span><span style="color: ${color}; opacity: 0.8; display: inline-block; width: 40px; text-align: right">${score.score}</span></div>`;
+        const rowStyle =
+          index % 2 === 0 ? "" : " background-color: rgba(49, 50, 68, 0.3);";
+        return `<div style="font-family: 'Courier New', monospace; white-space: pre;${rowStyle}">${(
+          index + 1
+        )
+          .toString()
+          .padStart(
+            3,
+            " "
+          )}. <span style="color: ${color}; display: inline-block; width: 165px">${
+          score.name
+        }<span style="font-family: monospace; font-size: 0.7em; opacity: 0.3; display: inline-block; width: 60px"> !${
+          score.tripcode
+        }</span></span><span style="color: ${color}; opacity: 0.8; display: inline-block; width: 40px; text-align: right">${
+          score.score
+        }</span></div>`;
       })
       .join("");
   } else {

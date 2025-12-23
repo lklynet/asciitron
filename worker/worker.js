@@ -1,10 +1,19 @@
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://asciitron.lkly.net",
+const defaultCorsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-API-Key",
   "Access-Control-Allow-Credentials": "true",
   "Access-Control-Max-Age": "86400",
 };
+
+function getCorsHeaders(request, env) {
+  const origin = request.headers.get("Origin");
+  const allowedOrigin = env.ALLOWED_ORIGIN || origin || "*";
+
+  return {
+    ...defaultCorsHeaders,
+    "Access-Control-Allow-Origin": allowedOrigin,
+  };
+}
 
 const hashChars =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
@@ -51,7 +60,8 @@ class RateLimiter {
   checkScoreSubmission(ip) {
     const now = Date.now();
     const lastSubmission = this.scoreSubmissions.get(ip);
-    if (lastSubmission && now - lastSubmission < 1000) { // Minimum 60s between games
+    if (lastSubmission && now - lastSubmission < 1000) {
+      // Minimum 60s between games
       return false;
     }
     this.scoreSubmissions.set(ip, now);
@@ -66,17 +76,21 @@ let profanityList = null;
 async function fetchProfanityList() {
   if (profanityList) return profanityList;
   try {
-    const response = await fetch('https://raw.githubusercontent.com/coffee-and-fun/google-profanity-words/refs/heads/main/data/en.txt');
+    const response = await fetch(
+      "https://raw.githubusercontent.com/coffee-and-fun/google-profanity-words/refs/heads/main/data/en.txt"
+    );
     const text = await response.text();
-    profanityList = new Set(text.split('\n').filter(word => word.trim()));
+    profanityList = new Set(text.split("\n").filter((word) => word.trim()));
     return profanityList;
   } catch (error) {
-    console.error('Error fetching profanity list:', error);
+    console.error("Error fetching profanity list:", error);
     return new Set(); // Return empty set as fallback
   }
 }
 
 async function handleRequest(request, env) {
+  const corsHeaders = getCorsHeaders(request, env);
+
   if (request.method === "OPTIONS") {
     return new Response(null, {
       headers: corsHeaders,
@@ -118,11 +132,11 @@ async function handleRequest(request, env) {
       // Validate wave count and score correlation
       // Regular waves: 10 enemies * 10 points = 100 points per wave
       // Boss waves (every 5th wave): 20 additional points
-      const expectedMaxScore = (waveCount * 100) + (Math.floor(waveCount / 5) * 20);
+      const expectedMaxScore = waveCount * 100 + Math.floor(waveCount / 5) * 20;
       if (score > expectedMaxScore) {
         throw new Error("Score exceeds possible amount for waves completed");
       }
-      
+
       // Validate score based on game mechanics
       // Maximum possible score calculation:
       // Assuming maximum 100 waves (very generous)
@@ -145,7 +159,11 @@ async function handleRequest(request, env) {
       // Check for profanity in username
       const profanityWords = await fetchProfanityList();
       const lowercaseUsername = username.toLowerCase();
-      if (Array.from(profanityWords).some(word => lowercaseUsername.includes(word.toLowerCase()))) {
+      if (
+        Array.from(profanityWords).some((word) =>
+          lowercaseUsername.includes(word.toLowerCase())
+        )
+      ) {
         throw new Error("Username rejected: Contains inappropriate language");
       }
 
@@ -159,9 +177,11 @@ async function handleRequest(request, env) {
       });
 
       // Track suspicious activity
-      const userScores = scores.filter(s => s.name === username);
+      const userScores = scores.filter((s) => s.name === username);
       if (userScores.length > 0) {
-        const averageScore = userScores.reduce((acc, curr) => acc + curr.score, 0) / userScores.length;
+        const averageScore =
+          userScores.reduce((acc, curr) => acc + curr.score, 0) /
+          userScores.length;
         if (score > averageScore * 3) {
           suspiciousIPs.add(clientIp);
         }
@@ -174,20 +194,29 @@ async function handleRequest(request, env) {
 
       // Store suspicious IPs for monitoring
       if (suspiciousIPs.size > 0) {
-        await env.SCORES.put("suspicious_ips", JSON.stringify(Array.from(suspiciousIPs)));
+        await env.SCORES.put(
+          "suspicious_ips",
+          JSON.stringify(Array.from(suspiciousIPs))
+        );
       }
 
       // Calculate player's ranking position
       const sortedScores = scores.sort((a, b) => b.score - a.score);
-      const playerPosition = sortedScores.findIndex(s => s.name === username && s.score === score) + 1;
-      
-      return new Response(JSON.stringify({ 
-        success: true,
-        position: playerPosition,
-        totalPlayers: sortedScores.length
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      const playerPosition =
+        sortedScores.findIndex(
+          (s) => s.name === username && s.score === score
+        ) + 1;
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          position: playerPosition,
+          totalPlayers: sortedScores.length,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     return new Response(JSON.stringify({ error: "Not found" }), {

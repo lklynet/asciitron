@@ -1,0 +1,11 @@
+version: '3'
+services:
+  asciitron:
+    build: .
+    # If using the pre-built image from GHCR:
+    # image: ghcr.io/lklynet/asciitron:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

@@ -58,7 +58,7 @@ Enemy behavior:
 - V: Save score (after game over)
 - R: Restart (after game over)
 
-## 🛠️ Technical Stack
+## Technical Stack
 
 - **Frontend:** Vanilla JavaScript, HTML5, CSS3
 - **Backend:** Cloudflare Workers / Node.js (Self-hosted)
@@ -66,7 +66,7 @@ Enemy behavior:
 - **Hosting:** Cloudflare Pages / Docker
 - **Design:** Catppuccin Mocha Color Scheme
 
-## 🎯 Features
+## Features
 
 - **Responsive ASCII Graphics:** Pure text-based visuals that work across devices
 - **Global Leaderboard:** Compete with players worldwide
@@ -75,34 +75,12 @@ Enemy behavior:
 - **Progressive Difficulty:** Increasing challenge with each wave
 - **Keyboard Controls:** Full keyboard navigation throughout the game
 
-## 🚀 Getting Started
+## Getting Started
 
 1. Visit [https://asciitron.lkly.net](https://asciitron.lkly.net)
 2. Press **Space** to start the game
 3. Use **WASD** to move and **Arrow Keys** to shoot
 4. Create credentials (username#password) to save your scores
-
-## 🎨 Design
-
-The game uses the Catppuccin Mocha color scheme for a cohesive retro aesthetic:
-
-- Player: Blue
-- Enemies: Red, Peach, Green
-- Bullets: White
-- UI Elements: Various Catppuccin colors
-
-## 🔧 Development
-
-### Project Structure
-
-```
-asciitron/
-├── index.html      # Main game interface and UI
-├── styles.css      # Catppuccin theme and animations
-├── scripts.js      # Core game logic and mechanics
-└── worker/         # Backend API
-    └── worker.js   # Score handling and leaderboard
-```
 
 ### Local Development
 
@@ -110,7 +88,7 @@ asciitron/
 2. Serve the files using a local HTTP server (e.g., `python -m http.server`)
 3. No build step required - edit and refresh
 
-## 🐳 Self-Hosting
+## Self-Hosting
 
 You can host ASCIItron on your own server using Docker.
 
@@ -139,7 +117,7 @@ docker run -d -p 3000:3000 -v $(pwd)/data:/app/data ghcr.io/lklynet/asciitron:la
 
 The game data (scores) will be persisted in the `./data` directory.
 
-## 🔒 Security
+## Security
 
 - Scores are saved using username#password format
 - Passwords are hashed using SHA-256 before transmission
@@ -147,7 +125,7 @@ The game data (scores) will be persisted in the `./data` directory.
 - Input validation on both client and server sides
 - Usernames limited to 12 characters
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch

@@ -304,6 +304,10 @@ body {
   }
 }
 
+#end-screen .title-animation {
+  margin-left: 0;
+}
+
 .graphics-animation {
   text-align: center;
   font-size: 10px;

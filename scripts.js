@@ -1320,6 +1320,35 @@ function saveScore() {
 
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
+
+  // Fallback for non-secure contexts (e.g., http://<ip>) where crypto.subtle is undefined
+  if (!crypto.subtle) {
+    // Simple hash for non-secure contexts - this is just to allow the game to work
+    // in self-hosted environments without HTTPS. It is NOT cryptographically secure.
+    let hash = 0;
+    for (let i = 0; i < password.length; i++) {
+      const char = password.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    const hashHex = Math.abs(hash).toString(16).padStart(64, "0"); // Pad to match SHA-256 length somewhat
+
+    fetch("/scores", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        score,
+        name: `${displayName}#${hashHex}`,
+      }),
+    })
+      .then((response) => response.json())
+      .then(handleScoreSubmissionResult)
+      .catch(handleScoreSubmissionError);
+    return;
+  }
+
   crypto.subtle
     .digest("SHA-256", data)
     .then((hashBuffer) => {
@@ -1327,7 +1356,7 @@ function saveScore() {
       const hashHex = hashArray
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
-      return fetch("https://asciitron-api.leefamous.workers.dev/scores", {
+      return fetch("/scores", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1339,47 +1368,49 @@ function saveScore() {
       });
     })
     .then((response) => response.json())
-    .then((result) => {
-      if (!result.success) {
-        throw new Error("Failed to submit score");
-      }
-      localStorage.setItem(
-        "asciitron-credentials",
-        document.getElementById("player-credentials").value
-      );
-      getLeaderboard();
+    .then(handleScoreSubmissionResult)
+    .catch(handleScoreSubmissionError);
+}
 
-      let rankingMessage;
-      if (result.position > 100) {
-        rankingMessage = "Try Again!";
-      } else if (result.position <= 10) {
-        rankingMessage = `Top 10! (Rank ${result.position})`;
-      } else {
-        rankingMessage = `Top ${result.position}!`;
-      }
-      showNotification(rankingMessage);
+function handleScoreSubmissionResult(result) {
+  if (!result.success) {
+    throw new Error("Failed to submit score");
+  }
+  localStorage.setItem(
+    "asciitron-credentials",
+    document.getElementById("player-credentials").value
+  );
+  getLeaderboard();
 
-      const saveText = document.getElementById("save-score-text");
-      saveText.textContent = "[V] Score Saved!";
-      saveText.style.opacity = "0.3";
-      saveText.style.cursor = "default";
-      saveText.style.pointerEvents = "none";
-    })
-    .catch((error) => {
-      console.error("Error saving score:", error);
+  let rankingMessage;
+  if (result.position > 100) {
+    rankingMessage = "Try Again!";
+  } else if (result.position <= 10) {
+    rankingMessage = `Top 10! (Rank ${result.position})`;
+  } else {
+    rankingMessage = `Top ${result.position}!`;
+  }
+  showNotification(rankingMessage);
 
-      if (error.response) {
-        error.response.json().then((data) => {
-          showNotification(
-            data.error || "Failed to save score. Please try again."
-          );
-        });
-      } else {
-        showNotification(
-          error.message || "Failed to save score. Please try again."
-        );
-      }
+  const saveText = document.getElementById("save-score-text");
+  saveText.textContent = "[V] Score Saved!";
+  saveText.style.opacity = "0.3";
+  saveText.style.cursor = "default";
+  saveText.style.pointerEvents = "none";
+}
+
+function handleScoreSubmissionError(error) {
+  console.error("Error saving score:", error);
+
+  if (error.response) {
+    error.response.json().then((data) => {
+      showNotification(data.error || "Failed to save score. Please try again.");
     });
+  } else {
+    showNotification(
+      error.message || "Failed to save score. Please try again."
+    );
+  }
 }
 
 function restartGame() {

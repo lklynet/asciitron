@@ -224,14 +224,11 @@ function playMineExplosionSound() {
 function startGame() {
   gameState = "playing";
 
-  document.getElementById("modal-scores").style.display = "none";
   document.getElementById("modal-instructions").style.display = "none";
   document.getElementById("modal-stats").style.display = "none";
   document.getElementById("start-screen").style.display = "none";
   document.getElementById("game-screen").style.display = "block";
   document.getElementById("game-screen").classList.add("playing");
-  document.getElementById("leaderboard").style.display = "block";
-  document.getElementById("high-score-display").style.display = "block";
   initGame();
   gameLoop = setInterval(updateGame, 1000 / 30);
 }
@@ -1019,16 +1016,6 @@ function endGame() {
   document.getElementById("game-screen").classList.remove("playing");
   document.getElementById("final-score").textContent = score;
   document.getElementById("end-screen").style.display = "block";
-  document.getElementById("high-score-display").style.display = "none";
-
-  const savedCredentials = localStorage.getItem("asciitron-credentials");
-  if (savedCredentials) {
-    document.getElementById("player-credentials").value = savedCredentials;
-  }
-
-  getLeaderboard().then(() => {
-    document.getElementById("scores-popup").style.display = "block";
-  });
 }
 
 document.addEventListener("keydown", (e) => {
@@ -1036,27 +1023,10 @@ document.addEventListener("keydown", (e) => {
     if (e.code === "Space") {
       setTimeout(startGame, 100);
       return;
-    } else if (e.code === "KeyT") {
-      const modalScores = document.getElementById("modal-scores");
-      const modalInstructions = document.getElementById("modal-instructions");
-      const modalStats = document.getElementById("modal-stats");
-
-      modalInstructions.style.display = "none";
-      modalStats.style.display = "none";
-
-      if (modalScores.style.display === "block") {
-        modalScores.style.display = "none";
-      } else {
-        updateModalScores();
-        modalScores.style.display = "block";
-      }
-      return;
     } else if (e.code === "KeyY") {
       const modalInstructions = document.getElementById("modal-instructions");
-      const modalScores = document.getElementById("modal-scores");
       const modalStats = document.getElementById("modal-stats");
 
-      modalScores.style.display = "none";
       modalStats.style.display = "none";
 
       modalInstructions.style.display =
@@ -1064,10 +1034,8 @@ document.addEventListener("keydown", (e) => {
       return;
     } else if (e.code === "KeyU") {
       const modalStats = document.getElementById("modal-stats");
-      const modalScores = document.getElementById("modal-scores");
       const modalInstructions = document.getElementById("modal-instructions");
 
-      modalScores.style.display = "none";
       modalInstructions.style.display = "none";
 
       if (modalStats.style.display === "block") {
@@ -1086,16 +1054,7 @@ document.addEventListener("keydown", (e) => {
       return;
     }
   } else if (gameState === "end") {
-    if (
-      document.activeElement === document.getElementById("player-credentials")
-    ) {
-      return;
-    }
-
-    if (e.code === "KeyV") {
-      saveScore();
-      return;
-    } else if (e.code === "KeyR") {
+    if (e.code === "KeyR") {
       restartGame();
       return;
     }
@@ -1151,138 +1110,6 @@ document.addEventListener("keyup", (e) => {
   }
 });
 
-async function submitScore(score) {
-  try {
-    const input = prompt(
-      "Enter your name and password (format: name#password):",
-      "Player#pass"
-    );
-    if (!input) return;
-
-    const [displayName, password] = input.split("#");
-    if (!displayName || !password) {
-      alert("Invalid format. Please use: name#password");
-      return;
-    }
-
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-
-    const response = await fetch("/scores", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        score,
-        name: `${displayName}#${hashHex}`,
-      }),
-    });
-    const result = await response.json();
-    if (!result.success) {
-      throw new Error(result.error || "Failed to submit score");
-    }
-    await getLeaderboard();
-  } catch (error) {
-    console.error("Error submitting score:", error);
-    alert("Failed to submit score. Please try again.");
-  }
-}
-
-function updateModalScores() {
-  const modalContent = document.getElementById("modal-scores-content");
-
-  modalContent.innerHTML = document.getElementById("scores").innerHTML;
-}
-
-async function getLeaderboard() {
-  try {
-    const response = await fetch("/scores", {
-      headers: { "Content-Type": "application/json" },
-    });
-    const scores = await response.json();
-    console.log("Leaderboard response:", scores);
-    updateLeaderboardDisplay(scores);
-    updateScoresPopup(scores);
-    return scores;
-  } catch (error) {
-    console.error("Error fetching leaderboard:", error);
-  }
-}
-
-function updateLeaderboardDisplay(scores) {
-  console.log("Updating leaderboard with", scores.length, "scores.");
-  const catppuccinColors = [
-    "#f5c2e7",
-    "#cba6f7",
-    "#89b4fa",
-    "#94e2d5",
-    "#a6e3a1",
-    "#fab387",
-    "#f38ba8",
-    "#eba0ac",
-  ];
-  const scoresDiv = document.getElementById("scores");
-  if (scores && scores.length > 0) {
-    const highestScoreEntry = scores.reduce((prev, current) =>
-      prev.score > current.score ? prev : current
-    );
-    const color = getColorFromTripcode(highestScoreEntry.tripcode);
-    document.getElementById(
-      "display-high-score"
-    ).innerHTML = `<div style="font-family: 'Courier New', monospace; white-space: pre;">1. <span style="color: ${color}; display: inline-block; width: 165px">${highestScoreEntry.name}<span style="font-family: monospace; font-size: 0.7em; opacity: 0.3; display: inline-block; width: 60px"> !${highestScoreEntry.tripcode}</span></span><span style="color: ${color}; opacity: 0.8; display: inline-block; width: 40px; text-align: right">${highestScoreEntry.score}</span></div>`;
-
-    const topScores = scores.slice(0, 100);
-    scoresDiv.innerHTML = topScores
-      .map((score, index) => {
-        const color = getColorFromTripcode(score.tripcode);
-        const rowStyle =
-          index % 2 === 0 ? "" : " background-color: rgba(49, 50, 68, 0.3);";
-        return `<div style="font-family: 'Courier New', monospace; white-space: pre;${rowStyle}">${(
-          index + 1
-        )
-          .toString()
-          .padStart(
-            3,
-            " "
-          )}. <span style="color: ${color}; display: inline-block; width: 165px">${
-          score.name
-        }<span style="font-family: monospace; font-size: 0.7em; opacity: 0.3; display: inline-block; width: 60px"> !${
-          score.tripcode
-        }</span></span><span style="color: ${color}; opacity: 0.8; display: inline-block; width: 40px; text-align: right">${
-          score.score
-        }</span></div>`;
-      })
-      .join("");
-  } else {
-    scoresDiv.innerHTML = "No scores yet";
-  }
-}
-
-function getColorFromTripcode(tripcode) {
-  const catppuccinColors = [
-    "#f5c2e7",
-    "#cba6f7",
-    "#89b4fa",
-    "#94e2d5",
-    "#a6e3a1",
-    "#fab387",
-    "#f38ba8",
-    "#eba0ac",
-  ];
-  const colorIndex = tripcode.charCodeAt(0) % catppuccinColors.length;
-  return catppuccinColors[colorIndex];
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  getLeaderboard();
-});
-
 function showNotification(message, type = "info") {
   const notification = document.getElementById("notification");
   notification.textContent = message;
@@ -1292,165 +1119,8 @@ function showNotification(message, type = "info") {
   }, 2000);
 }
 
-function saveScore() {
-  if (
-    document.getElementById("save-score-text").textContent ===
-    "[V] Score Saved!"
-  ) {
-    return;
-  }
-
-  const input = document.getElementById("player-credentials").value;
-  if (!input) {
-    showNotification("Please enter credentials in the format: Name#Password");
-    return;
-  }
-  const [displayName, password] = input.split("#");
-
-  if (!displayName || displayName.length > 12) {
-    showNotification("Username must be between 1-12 characters");
-    return;
-  }
-  if (!displayName || !password) {
-    showNotification("Invalid format. Please use: Name#Password");
-    return;
-  }
-
-  showNotification("Saving score...");
-
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-
-  // Fallback for non-secure contexts (e.g., http://<ip>) where crypto.subtle is undefined
-  if (!crypto.subtle) {
-    // Simple hash for non-secure contexts - this is just to allow the game to work
-    // in self-hosted environments without HTTPS. It is NOT cryptographically secure.
-    let hash = 0;
-    for (let i = 0; i < password.length; i++) {
-      const char = password.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash = hash & hash; // Convert to 32bit integer
-    }
-    const hashHex = Math.abs(hash).toString(16).padStart(64, "0"); // Pad to match SHA-256 length somewhat
-
-    fetch("/scores", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        score,
-        name: `${displayName}#${hashHex}`,
-      }),
-    })
-      .then((response) => response.json())
-      .then(handleScoreSubmissionResult)
-      .catch(handleScoreSubmissionError);
-    return;
-  }
-
-  crypto.subtle
-    .digest("SHA-256", data)
-    .then((hashBuffer) => {
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-      return fetch("/scores", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          score,
-          name: `${displayName}#${hashHex}`,
-        }),
-      });
-    })
-    .then((response) => response.json())
-    .then(handleScoreSubmissionResult)
-    .catch(handleScoreSubmissionError);
-}
-
-function handleScoreSubmissionResult(result) {
-  if (!result.success) {
-    throw new Error("Failed to submit score");
-  }
-  localStorage.setItem(
-    "asciitron-credentials",
-    document.getElementById("player-credentials").value
-  );
-  getLeaderboard();
-
-  let rankingMessage;
-  if (result.position > 100) {
-    rankingMessage = "Try Again!";
-  } else if (result.position <= 10) {
-    rankingMessage = `Top 10! (Rank ${result.position})`;
-  } else {
-    rankingMessage = `Top ${result.position}!`;
-  }
-  showNotification(rankingMessage);
-
-  const saveText = document.getElementById("save-score-text");
-  saveText.textContent = "[V] Score Saved!";
-  saveText.style.opacity = "0.3";
-  saveText.style.cursor = "default";
-  saveText.style.pointerEvents = "none";
-}
-
-function handleScoreSubmissionError(error) {
-  console.error("Error saving score:", error);
-
-  if (error.response) {
-    error.response.json().then((data) => {
-      showNotification(data.error || "Failed to save score. Please try again.");
-    });
-  } else {
-    showNotification(
-      error.message || "Failed to save score. Please try again."
-    );
-  }
-}
-
 function restartGame() {
   document.getElementById("end-screen").style.display = "none";
-  document.getElementById("player-credentials").value = "";
-
-  const saveText = document.getElementById("save-score-text");
-  saveText.textContent = "[V] Save Score";
-  saveText.style.opacity = "1";
-  document.getElementById("scores-popup").style.display = "none";
   document.getElementById("start-screen").style.display = "block";
   gameState = "start";
-}
-
-function updateScoresPopup(scores) {
-  const popup = document.getElementById("scores-popup");
-  if (scores && scores.length > 0) {
-    const topScores = scores.slice(0, 10);
-    popup.innerHTML = topScores
-      .map((score, index) => {
-        const color = getColorFromTripcode(score.tripcode);
-        const rowStyle =
-          index % 2 === 0 ? "" : " background-color: rgba(49, 50, 68, 0.3);";
-        return `<div style="font-family: 'Courier New', monospace; white-space: pre;${rowStyle}">${(
-          index + 1
-        )
-          .toString()
-          .padStart(
-            3,
-            " "
-          )}. <span style="color: ${color}; display: inline-block; width: 165px">${
-          score.name
-        }<span style="font-family: monospace; font-size: 0.7em; opacity: 0.3; display: inline-block; width: 60px"> !${
-          score.tripcode
-        }</span></span><span style="color: ${color}; opacity: 0.8; display: inline-block; width: 40px; text-align: right">${
-          score.score
-        }</span></div>`;
-      })
-      .join("");
-  } else {
-    popup.innerHTML = "No scores yet.";
-  }
 }

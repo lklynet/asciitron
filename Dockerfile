@@ -7,9 +7,6 @@ RUN npm install --production
 
 COPY . .
 
-# Create data directory and ensure permissions
-RUN mkdir -p data && chown -R node:node data
-
 USER node
 
 EXPOSE 3000

@@ -52,7 +52,6 @@ Enemy behavior:
 - WASD: Movement
 - Arrow Keys: Shoot
 - Space: Start game
-- T: View scores
 - Y: View instructions
 - U: View stats
 - V: Save score (after game over)
@@ -62,16 +61,13 @@ Enemy behavior:
 
 - **Frontend:** Vanilla JavaScript, HTML5, CSS3
 - **Backend:** Cloudflare Workers / Node.js (Self-hosted)
-- **Database:** Cloudflare KV Storage / JSON File (Self-hosted)
 - **Hosting:** Cloudflare Pages / Docker
 - **Design:** Catppuccin Mocha Color Scheme
 
 ## Features
 
 - **Responsive ASCII Graphics:** Pure text-based visuals that work across devices
-- **Global Leaderboard:** Compete with players worldwide
 - **Persistent Stats:** Track your highest score, waves survived, and total games
-- **Secure Score Submission:** Username/password system with SHA-256 hashing
 - **Progressive Difficulty:** Increasing challenge with each wave
 - **Keyboard Controls:** Full keyboard navigation throughout the game
 
@@ -80,7 +76,6 @@ Enemy behavior:
 1. Visit [https://asciitron.lkly.net](https://asciitron.lkly.net)
 2. Press **Space** to start the game
 3. Use **WASD** to move and **Arrow Keys** to shoot
-4. Create credentials (username#password) to save your scores
 
 ### Local Development
 
@@ -112,18 +107,8 @@ You can host ASCIItron on your own server using Docker.
 You can also run the pre-built image directly:
 
 ```bash
-docker run -d -p 3000:3000 -v $(pwd)/data:/app/data ghcr.io/lklynet/asciitron:latest
+docker run -d -p 3000:3000 -v ghcr.io/lklynet/asciitron:latest
 ```
-
-The game data (scores) will be persisted in the `./data` directory.
-
-## Security
-
-- Scores are saved using username#password format
-- Passwords are hashed using SHA-256 before transmission
-- Score submission is protected against spam
-- Input validation on both client and server sides
-- Usernames limited to 12 characters
 
 ## Contributing
 

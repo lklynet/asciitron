@@ -82,36 +82,19 @@
       <div id="game-screen" aria-live="polite"></div>
       <div id="end-screen">
         <pre class="title-animation" aria-label="Game Over Art">
-   ________    _____      _____  ___________ ____________   _________________________ 
-  /  _____/   /  _  \    /     \ \_   _____/ \_____  \ \ /   / \_   _____/\______   \
- /   \  ___  /  /_\  \  /  \ /  \ |    __)_   /   |   \ \   /   |    __)_  |       _/
- \    \_\  \/    |    \/    Y    \|        \ /    |    \ \ /    |        \ |    |   \
-  \______  /\____|__  /\____|__  /_______  / \_______  /  \     /_______  / |____|_  /
-         \/         \/         \/        \/          \/    \___/        \/         \/ 
+  ________    _____      _____  ___________ ____________   _________________________ 
+ /  _____/   /  _  \    /     \ \_   _____/ \_____  \   \ /   /\_   _____/\______   \
+/   \  ___  /  /_\  \  /  \ /  \ |    __)_   /   |   \   Y   /  |    __)_  |       _/
+\    \_\  \/    |    \/    Y    \|        \ /    |    \     /   |        \ |    |   \
+ \______  /\____|__  /\____|__  /_______  / \_______  /\___/   /_______  / |____|_  /
+        \/         \/         \/        \/          \/                 \/         \/ 
         </pre>
         <p class="score-display">Your score: <span id="final-score"></span></p>
         <div id="save-score-section">
-          <input
-            type="text"
-            id="player-credentials"
-            placeholder="Name#Password"
-            aria-label="Enter username and password separated by hash symbol"
-          />
-          <p id="save-score-text" class="key-prompt">[V] Save Score</p>
           <p class="key-prompt">[R] Restart</p>
         </div>
       </div>
-      <div id="leaderboard">
-        <div id="score-hider">
-          <div id="scores"></div>
-        </div>
-      </div>
       <div id="notification"></div>
-      <div id="scores-popup"></div>
-      <div id="modal-scores" class="modal">
-        <h4>Top Scores</h4>
-        <div id="modal-scores-content"></div>
-      </div>
       <div id="modal-instructions" class="modal">
         <h4>Instructions</h4>
         <p style="text-align: left">

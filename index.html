@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-85LBR0M6FY"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-85LBR0M6FY');
-    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#1e1e2e" />
@@ -24,24 +15,6 @@
       name="keywords"
       content="ASCII game, retro game, browser game, arcade shooter, ASCII art"
     />
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://asciitron.lkly.net/" />
-    <meta property="og:title" content="ASCIItron - Retro ASCII Shooter Game" />
-    <meta
-      property="og:description"
-      content="Play ASCIItron, a retro-style ASCII shooter game. Use WASD to move, arrow keys to shoot, and survive waves of enemies in this classic arcade experience."
-    />
-    <meta
-      property="og:image"
-      content="https://asciitron.lkly.net/asset/screenshot.webp"
-    />
-    <meta
-      property="twitter:image"
-      content="https://asciitron.lkly.net/asset/screenshot.webp"
-    />
-
     <!-- Emoji Favicon -->
     <link
       rel="icon"
@@ -50,21 +23,6 @@
 
     <title lang="en">ASCIItron</title>
     <link rel="stylesheet" href="styles.css" />
-
-    <!-- Structured Data -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "VideoGame",
-        "name": "ASCIItron",
-        "description": "A retro-style ASCII shooter game where players use WASD to move and arrow keys to shoot, surviving waves of enemies in a classic arcade experience.",
-        "genre": ["Arcade", "Shooter", "Retro"],
-        "url": "https://asciitron.lkly.net/",
-        "inLanguage": "en",
-        "playMode": "SinglePlayer",
-        "gamePlatform": "Web Browser"
-      }
-    </script>
   </head>
   <body itemscope itemtype="https://schema.org/WebPage">
     <noscript>
@@ -73,7 +31,13 @@
         continue.
       </p>
     </noscript>
-    <div id="high-score-display" class="score-display" style="text-align: right;"><span id="display-high-score">0</span></div>
+    <div
+      id="high-score-display"
+      class="score-display"
+      style="text-align: right"
+    >
+      <span id="display-high-score">0</span>
+    </div>
     <main>
       <div id="start-screen">
         <pre class="title-animation" aria-label="ASCIItron Title Art">
@@ -128,13 +92,12 @@
       <div id="game-screen" aria-live="polite"></div>
       <div id="end-screen">
         <h2>
-  ________    _____      _____  ___________ ____________   _________________________ 
- /  _____/   /  _  \    /     \ \_   _____/ \_____  \   \ /   /\_   _____/\______   \
-/   \  ___  /  /_\  \  /  \ /  \ |    __)_   /   |   \   Y   /  |    __)_  |       _/
-\    \_\  \/    |    \/    Y    \|        \ /    |    \     /   |        \ |    |   \
- \______  /\____|__  /\____|__  /_______  / \_______  /\___/   /_______  / |____|_  /
-        \/         \/         \/        \/          \/                 \/         \/ 
-</h2>
+          ________ _____ _____ ___________ ____________
+          _________________________ / _____/ / _ \ / \ \_ _____/ \_____ \ \ /
+          /\_ _____/\______ \ / \ ___ / /_\ \ / \ / \ | __)_ / | \ Y / | __)_ |
+          _/ \ \_\ \/ | \/ Y \| \ / | \ / | \ | | \ \______ /\____|__ /\____|__
+          /_______ / \_______ /\___/ /_______ / |____|_ / \/ \/ \/ \/ \/ \/ \/
+        </h2>
         <p class="score-display">Your score: <span id="final-score"></span></p>
         <div id="save-score-section">
           <input
@@ -143,7 +106,8 @@
             placeholder="Name#Password"
             aria-label="Enter username and password separated by hash symbol"
           />
-          <p id="save-score-text" class="key-prompt">[V] Save Score</p><p class="key-prompt">[R] Restart</p>
+          <p id="save-score-text" class="key-prompt">[V] Save Score</p>
+          <p class="key-prompt">[R] Restart</p>
         </div>
       </div>
       <div id="leaderboard">
@@ -159,7 +123,7 @@
       </div>
       <div id="modal-instructions" class="modal">
         <h4>Instructions</h4>
-        <p style="text-align: left;">
+        <p style="text-align: left">
           Use WASD to move.<br />
           Use Arrow Keys to shoot.<br />
           <br />
@@ -184,7 +148,7 @@
       </div>
       <div id="scan-lines"></div>
     </main>
-    <script src="audio.js"></script> 
+    <script src="audio.js"></script>
     <script src="scripts.js" defer></script>
   </body>
 </html>
